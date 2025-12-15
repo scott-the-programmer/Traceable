@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="EntityTrace.Tests/EntityTrace.Tests.csproj" />
+  <Project Path="EntityTrace/EntityTrace.csproj" />
+</Solution>
