@@ -43,7 +43,7 @@ Console.WriteLine(a.Resolve());  // Output: 2
 Console.WriteLine(a.Dependencies);  // Output: C + D - Z
 
 // Visualize the computation graph
-Console.WriteLine(a.Graph);
+a.PrintConsole();
 /* Output:
 Total calculation = 2
 ├── C = 1
@@ -73,12 +73,12 @@ Console.WriteLine(price.Resolve());   // 100.00
 All operations create new traceable entities that remember their computation:
 
 ```csharp
-var base_price = new Traceable<decimal>("BasePrice", 100.00m);
-var tax_rate = new Traceable<decimal>("TaxRate", 0.08m);
+var basePrice = new Traceable<decimal>("BasePrice", 100.00m);
+var taxRate = new Traceable<decimal>("TaxRate", 0.08m);
 var discount = new Traceable<decimal>("Discount", 10.00m);
 
-var tax = base_price * tax_rate;
-var total = base_price + tax - discount;
+var tax = basePrice * taxRate;
+var total = basePrice + tax - discount;
 
 Console.WriteLine(total.Resolve());      // 98.00
 Console.WriteLine(total.Dependencies);   // BasePrice + BasePrice * TaxRate - Discount
@@ -95,11 +95,11 @@ var hours = new Traceable<int>("Hours", 40);
 var rate = new Traceable<decimal>("HourlyRate", 25.00m);
 var bonus = new Traceable<decimal>("Bonus", 100.00m);
 
-var base_pay = hours * rate;
-var total_pay = base_pay + bonus;
-total_pay.Description = "Weekly Compensation";
+var basePay = hours * rate;
+var totalPay = basePay + bonus;
+totalPay.Description = "Weekly Compensation";
 
-Console.WriteLine(total_pay.Graph);
+totalPay.PrintConsole();
 /* Output:
 Weekly Compensation = 1100.00
 ├── Hours * HourlyRate = 1000.00
@@ -115,9 +115,9 @@ Update base entity values and see changes propagate through computations:
 
 ```csharp
 var units = new Traceable<int>("Units", 10);
-var price_per_unit = new Traceable<decimal>("PricePerUnit", 5.00m);
+var pricePerUnit = new Traceable<decimal>("PricePerUnit", 5.00m);
 
-var total = units * price_per_unit;
+var total = units * pricePerUnit;
 Console.WriteLine(total.Resolve());  // 50.00
 
 // Update the base value
@@ -140,7 +140,7 @@ var sum = a + b;
 var difference = a - b;
 var product = a * b;
 var quotient = a / b;
-var is_greater = a > b;  // Returns Traceable<bool>
+var isGreater = a > b;  // Returns Traceable<bool>
 ```
 
 ### Boolean Type
@@ -149,11 +149,11 @@ var is_greater = a > b;  // Returns Traceable<bool>
 - **Comparison**: `==`, `!=`
 
 ```csharp
-var is_active = new Traceable<bool>("IsActive", true);
-var has_permission = new Traceable<bool>("HasPermission", true);
+var isActive = new Traceable<bool>("IsActive", true);
+var hasPermission = new Traceable<bool>("HasPermission", true);
 
-var can_proceed = is_active & has_permission;
-Console.WriteLine(can_proceed.Resolve());  // true
+var canProceed = isActive & hasPermission;
+Console.WriteLine(canProceed.Resolve());  // true
 ```
 
 ### String Type
@@ -165,8 +165,8 @@ Console.WriteLine(can_proceed.Resolve());  // true
 var first = new Traceable<string>("FirstName", "John");
 var last = new Traceable<string>("LastName", "Doe");
 
-var full_name = first + last;
-Console.WriteLine(full_name.Resolve());  // JohnDoe
+var fullName = first + last;
+Console.WriteLine(fullName.Resolve());  // JohnDoe
 ```
 
 ### Custom Types
@@ -219,7 +219,7 @@ var sum = v1 + v2;  // Works! Natural operator syntax
 
 Console.WriteLine(sum.Resolve());      // (4, 6)
 Console.WriteLine(sum.Dependencies);   // V1 + V2
-Console.WriteLine(sum.Graph);
+sum.PrintConsole();
 /* Output:
 V1 + V2 = (4, 6)
 ├── V1 = (1, 2)
@@ -284,7 +284,7 @@ var total = price * quantity - discount;
 
 Console.WriteLine(total.Resolve());      // 450.00 USD
 Console.WriteLine(total.Dependencies);   // Price * Quantity - Discount
-Console.WriteLine(total.Graph);
+total.PrintConsole();
 /* Output:
 Price * Quantity - Discount = 450.00 USD
 ├── Price * Quantity = 500.00 USD
@@ -295,8 +295,8 @@ Price * Quantity - Discount = 450.00 USD
 
 // Comparison operators also work
 var budget = new Traceable<Money>("Budget", new Money(400m, "USD"));
-var is_over_budget = total > budget;
-Console.WriteLine(is_over_budget.Resolve());  // true
+var isOverBudget = total > budget;
+Console.WriteLine(isOverBudget.Resolve());  // true
 ```
 
 #### Benefits of Custom Types
@@ -313,17 +313,17 @@ Console.WriteLine(is_over_budget.Resolve());  // true
 ```csharp
 var revenue = new Traceable<decimal>("Revenue", 10000m);
 var cogs = new Traceable<decimal>("COGS", 6000m);
-var operating_expenses = new Traceable<decimal>("OpEx", 2000m);
-var tax_rate = new Traceable<decimal>("TaxRate", 0.21m);
+var operatingExpenses = new Traceable<decimal>("OpEx", 2000m);
+var taxRate = new Traceable<decimal>("TaxRate", 0.21m);
 
-var gross_profit = revenue - cogs;
-var ebit = gross_profit - operating_expenses;
-var tax = ebit * tax_rate;
-var net_income = ebit - tax;
+var grossProfit = revenue - cogs;
+var ebit = grossProfit - operatingExpenses;
+var tax = ebit * taxRate;
+var netIncome = ebit - tax;
 
-net_income.Description = "Net Income";
+netIncome.Description = "Net Income";
 
-Console.WriteLine(net_income.Graph);
+netIncome.PrintConsole();
 /* Output:
 Net Income = 1580.00
 ├── Revenue - COGS - OpEx = 2000.00
@@ -342,13 +342,13 @@ Net Income = 1580.00
 
 ```csharp
 var age = new Traceable<int>("Age", 25);
-var has_license = new Traceable<bool>("HasLicense", true);
+var hasLicense = new Traceable<bool>("HasLicense", true);
 
-var is_adult = age >= 18;
-var can_drive = is_adult & has_license;
+var isAdult = age >= 18;
+var canDrive = isAdult & hasLicense;
 
-Console.WriteLine(can_drive.Resolve());      // true
-Console.WriteLine(can_drive.Dependencies);   // Age >= 18 & HasLicense
+Console.WriteLine(canDrive.Resolve());      // true
+Console.WriteLine(canDrive.Dependencies);   // Age >= 18 & HasLicense
 ```
 
 ### Custom Type Extension
