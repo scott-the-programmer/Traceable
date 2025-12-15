@@ -2,9 +2,6 @@ using System.Collections.Generic;
 
 namespace EntityTrace
 {
-    /// <summary>
-    /// Represents a node in the computation dependency graph.
-    /// </summary>
     public class GraphNode
     {
         public GraphNode(
@@ -14,8 +11,8 @@ namespace EntityTrace
             bool isBase,
             string? operation,
             IReadOnlyList<GraphNode> children,
-            IReadOnlyDictionary<string, object?>? arbitraryState,
-            IReadOnlyDictionary<string, object?>? valueState)
+            IReadOnlyDictionary<string, object?>? arbitraryState = null,
+            IReadOnlyDictionary<string, object?>? valueState = null)
         {
             Name = name;
             Description = description;
