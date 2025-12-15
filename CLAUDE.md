@@ -9,11 +9,13 @@ EntityTrace is a .NET Standard 2.0 library that enables traceable computations w
 ## Project Structure
 
 - `EntityTrace/` - Main library project (.NET Standard 2.0)
-  - `ITraceable.cs` - Core interface defining traceable entity contract
+  - `ITraceable.cs` - Core interfaces (`ITraceableBase`, `ITraceable<T>`)
   - `Traceable.cs` - Main implementation with operator overloading
   - `ITraceableOperators.cs` - Operator interfaces for custom type support
+  - `TraceableExtensions.cs` - Transform extension methods for type conversion
+  - `GraphNode.cs` - Data structure for dependency graph representation
 - `EntityTrace.Tests/` - Test project (.NET 10.0)
-  - Uses xunit, FluentAssertions, and FsCheck for property-based testing
+  - Uses xunit for testing
   - `ExampleCustomTypes.cs` - Example custom types (Vector2D, Money, TriState)
   - `CustomTypeTests.cs` - Tests for custom type support
 
@@ -59,28 +61,28 @@ The library uses **operator overloading** combined with the **composite pattern*
 
 ### Key Concepts
 
-1. **ITraceable<T> Interface**: Defines the contract for all traceable entities
-   - `Name`: Identifier for the entity
-   - `Description`: Optional human-readable description
-   - `Value`: The underlying wrapped value
-   - `Dependencies`: String representation of the computation expression
-   - `Graph`: Tree-structured visualization of dependencies
-   - `Resolve()`: Computes the final value
-   - `GetDependencyNames()`: Returns all base entity names in the computation
-   - `Reset(T)`: Updates base entity values and propagates changes
+1. **Two-Level Interface Hierarchy**:
+   - `ITraceableBase`: Non-generic base interface for cross-type operations (enables comparison operators returning `Traceable<bool>`)
+   - `ITraceable<T>`: Generic interface with type-specific operations
 
-2. **Traceable<T> Class**: Generic implementation with type-specific operator overloads
-   - Supports numeric types (int, decimal, double) with arithmetic and comparison operators
-   - Supports boolean type with logical operators (& for AND, | for OR)
-   - Supports string type with concatenation
-   - Each operation creates a new composite entity that lazily evaluates its result
+2. **Base vs Composite Entities**: The `Traceable<T>` class uses a discriminator (`_isBase`) to distinguish:
+   - **Base entities**: Created via public constructor, hold a mutable value
+   - **Composite entities**: Created via operators/transforms, hold operand references and a compute function
 
-3. **Lazy Evaluation**: Values are computed on-demand via `Resolve()`, not at construction time. This allows efficient propagation when base values change.
+3. **Lazy Evaluation**: Values are computed on-demand via `Resolve()`, not at construction time. This allows efficient propagation when base values change via `Reset()`.
 
-4. **Dependency Tracking**: Each composite entity maintains references to its operands, enabling:
-   - Dependency expression generation (e.g., "A + B - C")
-   - Dependency graph visualization as tree structure
+4. **Dependency Tracking**: Each composite entity maintains `ITraceableBase[]` operand references, enabling:
+   - Dependency expression generation (e.g., "A + B - C") with proper operator precedence
+   - Tree-structured graph visualization via `BuildGraph()` and `PrintConsole()`
    - Base entity enumeration via `GetDependencyNames()`
+
+5. **Transform Extensions** (`TraceableExtensions.cs`): Enable type conversions and custom operations:
+   - Single-input: `source.Transform("Round", x => Math.Round(x))`
+   - Multi-input: `Transform(a, b, "Sum", (x, y) => x + y)`
+
+6. **State Dictionaries**: Entities can carry additional metadata:
+   - `ArbitraryState`: `IReadOnlyDictionary<string, object>` for any metadata
+   - `ValueState`: `IReadOnlyDictionary<string, T>` for type-safe state
 
 ### Type System Constraints
 
@@ -109,58 +111,27 @@ Custom types can implement optional operator interfaces to enable specific opera
 **Comparison**:
 - `System.IComparable<T>` - Enables `>`, `<`, `>=`, `<=` operators (standard .NET)
 
-### Custom Type Implementation Pattern
+### Operator Implementation Pattern
 
-The dispatch pattern for operators follows this priority:
+The `BinaryOp` helper centralizes operator dispatch:
 1. **Null validation** - Throws `ArgumentNullException` if operand is null
-2. **Built-in primitive check** - Fast path using `typeof(T) == typeof(int)` etc.
-3. **Interface implementation check** - Uses `left is ITraceableAddable<T>` pattern
-4. **Throw exception** - Helpful error message mentioning both primitives and interfaces
+2. **Support check** - Verifies type supports the operation via `IsXxxSupported()` methods
+3. **Create composite** - Returns new `Traceable<T>` with operand references and compute function
 
-Example from `Add()` method:
-```csharp
-private static T Add(T left, T right)
-{
-    // Fast path for primitives
-    if (typeof(T) == typeof(int)) { /* boxing/unboxing */ }
-    if (typeof(T) == typeof(decimal)) { /* boxing/unboxing */ }
-    // ... other primitives
+The arithmetic helpers (`Add`, `Subtract`, etc.) follow this priority:
+1. **Built-in primitive check** - Fast path using `typeof(T) == typeof(int)` etc.
+2. **Interface dispatch** - Uses `left is ITraceableAddable<T>` pattern for custom types
+3. **Throw exception** - Helpful error message mentioning both primitives and interfaces
 
-    // Interface dispatch for custom types
-    if (left is ITraceableAddable<T> addable)
-    {
-        return addable.Add(left, right);
-    }
+## Testing
 
-    // Helpful error message
-    throw new InvalidOperationException(
-        $"ADD operation not supported for type {typeof(T).Name}. " +
-        $"Type must be int, decimal, double, string, or implement ITraceableAddable<{typeof(T).Name}>");
-}
-```
-
-This design ensures:
-- **Performance**: Primitives use fast path without reflection
-- **Extensibility**: Custom types work via interface implementation
-- **Flexibility**: Types implement only needed operations (Interface Segregation Principle)
-- **Backward Compatibility**: All existing code works unchanged
-
-## Testing Strategy
-
-Tests use:
-- **xunit** as the test framework with standard assertions
-
-When adding new operators or types:
-1. Write unit tests for basic operations
-2. Test dependency tracking and graph generation
-3. Verify `Reset()` propagates changes correctly
+Tests use xunit. When adding new operators or types:
+1. Test basic operations and return values
+2. Test `Dependencies` string generation
+3. Test `BuildGraph()` structure
+4. Verify `Reset()` propagates changes correctly
 
 ## Target Framework
 
-The library targets **.NET Standard 2.0** for maximum compatibility across:
-- .NET Framework 4.6.1+
-- .NET Core 2.0+
-- .NET 5.0+
-- Mono, Xamarin, and other .NET implementations
-
-The test project uses **.NET 10.0** (latest version) but this can be adjusted for compatibility testing.
+- **Library**: .NET Standard 2.0 (compatible with .NET Framework 4.6.1+, .NET Core 2.0+, .NET 5+)
+- **Tests**: .NET 10.0
