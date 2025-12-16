@@ -1,20 +1,13 @@
 # EntityTrace
 
-A .NET library for creating traceable computations where every value maintains its origin and computation history.
+Trying to simplify troubleshooting for any sort of calculation
+
 
 ## Overview
 
 EntityTrace enables developers to wrap primitive values in traceable entities that support natural arithmetic syntax while automatically tracking dependencies, providing audit trails, and generating visual dependency graphs. Every operation on a traceable entity creates a new entity that remembers how it was computed, allowing you to understand the complete lineage of any calculated value.
 
-## Features
-
-- **Natural Syntax**: Use standard operators (+, -, \*, /, <, >, ==, &, |) with full IntelliSense support
-- **Automatic Dependency Tracking**: Every computation automatically records its inputs and operations
-- **Visual Dependency Graphs**: Generate tree-structured visualizations of computation flows
-- **Multiple Type Support**: Built-in support for integers, decimals, doubles, booleans, and strings
-- **Extensible Architecture**: Implement `ITraceable<T>` to add custom types
-- **Lazy Evaluation**: Computed values are calculated on-demand with efficient propagation
-- **Audit Trail**: Complete history of how values are derived from base entities
+*This project is inspired by [Pulumi's](https://www.pulumi.com/) C# SDK.*
 
 ## Installation
 
@@ -32,13 +25,13 @@ Build dynamic game systems where stats automatically propagate to derived values
 using EntityTrace;
 
 // 1. Define base character stats
-var strength = new Traceable<int>("Strength", 18);
-var weaponDamage = new Traceable<int>("WeaponBase", 5);
-var buff = new Traceable<int>("ActiveBuff", 0);
+var strength = new Traceable<int>(18, "Strength");
+var weaponDamage = new Traceable<int>(5, "WeaponBase");
+var buff = new Traceable<int>(0, "ActiveBuff");
 
 // 2. Define the damage mechanics
 // Damage = (Strength / 2) + Weapon + Buffs
-var strengthBonus = strength / new Traceable<int>("StrScale", 2);
+var strengthBonus = strength / new Traceable<int>(2, "StrScale");
 var totalDamage = strengthBonus + weaponDamage + buff;
 
 totalDamage.Description = "Total Hit Damage";
@@ -67,10 +60,10 @@ Use `Reset` to perform "what-if" analysis on business logic. Perfect for trouble
 
 ```csharp
 // 1. Define the Financial Model
-var revenue = new Traceable<decimal>("Revenue", 10000m);
-var cogs = new Traceable<decimal>("COGS", 8500m); // Cost of Goods Sold
-var taxRate = new Traceable<decimal>("TaxRate", 0.20m);
-var fixedCosts = new Traceable<decimal>("Overhead", 1000m);
+var revenue = new Traceable<decimal>(10000m, "Revenue");
+var cogs = new Traceable<decimal>(8500m, "COGS"); // Cost of Goods Sold
+var taxRate = new Traceable<decimal>(0.20m, "TaxRate");
+var fixedCosts = new Traceable<decimal>(1000m, "Overhead");
 
 var grossProfit = revenue - cogs;
 var tax = grossProfit * taxRate;
@@ -114,7 +107,7 @@ Revenue - COGS - (Revenue - COGS) * TaxRate - Overhead = 2200.00
 A traceable entity wraps a value and maintains metadata about its origin:
 
 ```csharp
-var price = new Traceable<decimal>("BasePrice", 100.00m);
+var price = new Traceable<decimal>(100.00m, "BasePrice");
 price.Description = "Product base price";
 
 Console.WriteLine(price.Name);        // BasePrice
@@ -127,9 +120,9 @@ Console.WriteLine(price.Description); // Product base price
 All operations create new traceable entities that remember their computation:
 
 ```csharp
-var basePrice = new Traceable<decimal>("BasePrice", 100.00m);
-var taxRate = new Traceable<decimal>("TaxRate", 0.08m);
-var discount = new Traceable<decimal>("Discount", 10.00m);
+var basePrice = new Traceable<decimal>(100.00m, "BasePrice");
+var taxRate = new Traceable<decimal>(0.08m, "TaxRate");
+var discount = new Traceable<decimal>(10.00m, "Discount");
 
 var tax = basePrice * taxRate;
 var total = basePrice + tax - discount;
@@ -143,8 +136,8 @@ Console.WriteLine(total.Dependencies);
 Update base entity values and see changes propagate through computations:
 
 ```csharp
-var units = new Traceable<int>("Units", 10);
-var pricePerUnit = new Traceable<decimal>("PricePerUnit", 5.00m);
+var units = new Traceable<int>(10, "Units");
+var pricePerUnit = new Traceable<decimal>(5.00m, "PricePerUnit");
 
 var total = units * pricePerUnit;
 Console.WriteLine(total.Resolve());  // 50.00
@@ -162,8 +155,8 @@ Console.WriteLine(total.Resolve());  // 100.00 (automatically recalculated)
 - **Comparison**: `>`, `<`, `>=`, `<=`, `==`, `!=`
 
 ```csharp
-var a = new Traceable<int>("A", 10);
-var b = new Traceable<int>("B", 5);
+var a = new Traceable<int>(10, "A");
+var b = new Traceable<int>(5, "B");
 
 var sum = a + b;
 var isGreater = a > b;  // Returns Traceable<bool>
@@ -175,8 +168,8 @@ var isGreater = a > b;  // Returns Traceable<bool>
 - **Comparison**: `==`, `!=`
 
 ```csharp
-var isActive = new Traceable<bool>("IsActive", true);
-var hasLicense = new Traceable<bool>("HasLicense", true);
+var isActive = new Traceable<bool>(true, "IsActive");
+var hasLicense = new Traceable<bool>(true, "HasLicense");
 var canDrive = isActive & hasLicense;
 ```
 
@@ -186,8 +179,8 @@ var canDrive = isActive & hasLicense;
 - **Comparison**: `==`, `!=`
 
 ```csharp
-var first = new Traceable<string>("First", "John");
-var last = new Traceable<string>("Last", "Doe");
+var first = new Traceable<string>("John", "First");
+var last = new Traceable<string>("Doe", "Last");
 var full = first + last;
 ```
 
@@ -206,8 +199,8 @@ public struct Money : ITraceableArithmetic<Money>, IComparable<Money>
 }
 
 // Usage
-var price = new Traceable<Money>("Price", new Money(100m, "USD"));
-var tax = new Traceable<Money>("Tax", new Money(20m, "USD"));
+var price = new Traceable<Money>(new Money(100m, "USD"), "Price");
+var tax = new Traceable<Money>(new Money(20m, "USD"), "Tax");
 var total = price + tax;
 ```
 
@@ -216,9 +209,9 @@ var total = price + tax;
 ### Complex Computation Chains
 
 ```csharp
-var revenue = new Traceable<decimal>("Revenue", 10000m);
-var cogs = new Traceable<decimal>("COGS", 6000m);
-var expenses = new Traceable<decimal>("OpEx", 2000m);
+var revenue = new Traceable<decimal>(10000m, "Revenue");
+var cogs = new Traceable<decimal>(6000m, "COGS");
+var expenses = new Traceable<decimal>(2000m, "OpEx");
 
 var grossProfit = revenue - cogs;
 var netIncome = grossProfit - expenses;
