@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace EntityTrace
+namespace Traceable
 {
     public class GraphNode
     {

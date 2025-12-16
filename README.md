@@ -1,18 +1,21 @@
-# EntityTrace
+# Traceable
 
 Trying to simplify troubleshooting for any sort of calculation
 
-
 ## Overview
 
-EntityTrace enables developers to wrap primitive values in traceable entities that support natural arithmetic syntax while automatically tracking dependencies, providing audit trails, and generating visual dependency graphs. Every operation on a traceable entity creates a new entity that remembers how it was computed, allowing you to understand the complete lineage of any calculated value.
+_This project is inspired by [Pulumi's](https://www.pulumi.com/) C# SDK._
 
-*This project is inspired by [Pulumi's](https://www.pulumi.com/) C# SDK.*
+Ever wonder how that number was calculated?
+
+Or stare at an if statement for far too long?
+
+Leverage `Traceable<T>` and look 
 
 ## Installation
 
 ```bash
-dotnet add package EntityTrace
+dotnet add package Traceable
 ```
 
 ## Real-World Examples
@@ -22,7 +25,7 @@ dotnet add package EntityTrace
 Build dynamic game systems where stats automatically propagate to derived values like damage or health.
 
 ```csharp
-using EntityTrace;
+using Traceable;
 
 // 1. Define base character stats
 var strength = new Traceable<int>(18, "Strength");
@@ -186,7 +189,7 @@ var full = first + last;
 
 ### Custom Types
 
-EntityTrace supports custom types through optional operator interfaces. Implement the interfaces that match the operations your type supports:
+Traceable supports custom types through optional operator interfaces. Implement the interfaces that match the operations your type supports:
 
 #### Custom Type Example: Money
 

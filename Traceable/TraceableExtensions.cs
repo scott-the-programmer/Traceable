@@ -1,6 +1,6 @@
 using System;
 
-namespace EntityTrace
+namespace Traceable
 {
     public static class TraceableExtensions
     {

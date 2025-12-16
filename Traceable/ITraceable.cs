@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace EntityTrace
+namespace Traceable
 {
     /// <summary>Non-generic base interface for cross-type operations.</summary>
     public interface ITraceableBase

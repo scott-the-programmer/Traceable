@@ -1,4 +1,4 @@
-namespace EntityTrace.Tests;
+namespace Traceable.Tests;
 
 public class TraceableStateTests
 {

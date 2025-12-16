@@ -1,6 +1,6 @@
 using System;
 
-namespace EntityTrace.Tests
+namespace Traceable.Tests
 {
     /// <summary>
     /// Example custom type with partial arithmetic support (addition and subtraction only).

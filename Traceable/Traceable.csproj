@@ -6,13 +6,13 @@
     <Nullable>enable</Nullable>
 
     <!-- Package metadata -->
-    <PackageId>EntityTrace</PackageId>
+    <PackageId>Traceable</PackageId>
     <Version>1.0.0</Version>
-    <Authors>EntityTrace Contributors</Authors>
+    <Authors>Traceable Contributors</Authors>
     <Description>A .NET library for creating traceable computations where every value maintains its origin and computation history.</Description>
     <PackageTags>tracing;computation;dependency-tracking;audit-trail</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/yourusername/EntityTrace</RepositoryUrl>
+    <RepositoryUrl>https://github.com/yourusername/Traceable</RepositoryUrl>
   </PropertyGroup>
 
 </Project>

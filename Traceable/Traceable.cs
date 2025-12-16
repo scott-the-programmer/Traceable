@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace EntityTrace
+namespace Traceable
 {
     /// <summary>
     /// A traceable entity that wraps a value of type <typeparamref name="T"/> and automatically

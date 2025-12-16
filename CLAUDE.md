@@ -4,17 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-EntityTrace is a .NET Standard 2.0 library that enables traceable computations where every value maintains its origin and computation history. The library wraps primitive values in traceable entities that support natural arithmetic syntax while automatically tracking dependencies and generating visual dependency graphs.
+Traceable is a .NET Standard 2.0 library that enables traceable computations where every value maintains its origin and computation history. The library wraps primitive values in traceable entities that support natural arithmetic syntax while automatically tracking dependencies and generating visual dependency graphs.
 
 ## Project Structure
 
-- `EntityTrace/` - Main library project (.NET Standard 2.0)
+- `Traceable/` - Main library project (.NET Standard 2.0)
   - `ITraceable.cs` - Core interfaces (`ITraceableBase`, `ITraceable<T>`)
   - `Traceable.cs` - Main implementation with operator overloading
   - `ITraceableOperators.cs` - Operator interfaces for custom type support
   - `TraceableExtensions.cs` - Transform extension methods for type conversion
   - `GraphNode.cs` - Data structure for dependency graph representation
-- `EntityTrace.Tests/` - Test project (.NET 10.0)
+- `Traceable.Tests/` - Test project (.NET 10.0)
   - Uses xunit for testing
   - `ExampleCustomTypes.cs` - Example custom types (Vector2D, Money, TriState)
   - `CustomTypeTests.cs` - Tests for custom type support
@@ -23,29 +23,29 @@ EntityTrace is a .NET Standard 2.0 library that enables traceable computations w
 
 ### Build
 ```bash
-dotnet build EntityTrace/EntityTrace.csproj
-dotnet build EntityTrace.Tests/EntityTrace.Tests.csproj
+dotnet build Traceable/Traceable.csproj
+dotnet build Traceable.Tests/Traceable.Tests.csproj
 ```
 
 ### Run All Tests
 ```bash
-dotnet test EntityTrace.Tests/EntityTrace.Tests.csproj
+dotnet test Traceable.Tests/Traceable.Tests.csproj
 ```
 
 ### Run Tests with Coverage
 ```bash
-dotnet test EntityTrace.Tests/EntityTrace.Tests.csproj --collect:"XPlat Code Coverage"
+dotnet test Traceable.Tests/Traceable.Tests.csproj --collect:"XPlat Code Coverage"
 ```
 
 ### Run Specific Test
 ```bash
-dotnet test EntityTrace.Tests/EntityTrace.Tests.csproj --filter "FullyQualifiedName~TestMethodName"
+dotnet test Traceable.Tests/Traceable.Tests.csproj --filter "FullyQualifiedName~TestMethodName"
 ```
 
 ### Clean Build Artifacts
 ```bash
-dotnet clean EntityTrace/EntityTrace.csproj
-dotnet clean EntityTrace.Tests/EntityTrace.Tests.csproj
+dotnet clean Traceable/Traceable.csproj
+dotnet clean Traceable.Tests/Traceable.Tests.csproj
 ```
 
 ### Restore NuGet Packages

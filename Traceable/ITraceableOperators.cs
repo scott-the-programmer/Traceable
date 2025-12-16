@@ -1,4 +1,4 @@
-namespace EntityTrace
+namespace Traceable
 {
     /// <summary>Implement to support the + operator.</summary>
     public interface ITraceableAddable<T>
