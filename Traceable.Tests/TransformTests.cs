@@ -11,7 +11,7 @@ public class TransformTests
         var value = new Traceable<double>(5.7, "Value");
 
         // Act
-        var rounded = value.Transform<double, int>("Round", x => (int)Math.Floor(x));
+        var rounded = value.Transform<double, int>(x => (int)Math.Floor(x), "Round");
 
         // Assert
         Assert.Equal(5, rounded.Resolve());
@@ -32,7 +32,7 @@ public class TransformTests
         var number = new Traceable<int>(42, "Number");
 
         // Act
-        var text = number.Transform<int, string>("ToString", x => x.ToString());
+        var text = number.Transform<int, string>(x => x.ToString(), "ToString");
 
         // Assert
         Assert.Equal("42", text.Resolve());
@@ -46,7 +46,7 @@ public class TransformTests
         var value = new Traceable<double>(3.14, "A");
 
         // Act
-        var transformed = value.Transform<double, int>("Floor", x => (int)Math.Floor(x));
+        var transformed = value.Transform<double, int>(x => (int)Math.Floor(x), "Floor");
 
         // Assert
         Assert.Equal("Floor(A)", transformed.Dependencies);
@@ -59,7 +59,7 @@ public class TransformTests
         var value = new Traceable<double>(9.99, "MyValue");
 
         // Act
-        var transformed = value.Transform<double, int>("Ceiling", x => (int)Math.Ceiling(x));
+        var transformed = value.Transform<double, int>(x => (int)Math.Ceiling(x), "Ceiling");
 
         // Assert
         var graph = transformed.BuildGraph();
@@ -82,7 +82,7 @@ public class TransformTests
         var b = new Traceable<int>(5, "B");
 
         // Act
-        var sum = TraceableExtensions.Transform(a, b, "Sum", (x, y) => x + y);
+        var sum = TraceableExtensions.Transform(a, b, (x, y) => x + y, "Sum");
 
         // Assert
         Assert.Equal(8, sum.Resolve());
@@ -98,7 +98,7 @@ public class TransformTests
         var c = new Traceable<int>(6, "C");
 
         // Act
-        var avg = TraceableExtensions.Transform(a, b, c, "Average", (x, y, z) => (x + y + z) / 3);
+        var avg = TraceableExtensions.Transform(a, b, c, (x, y, z) => (x + y + z) / 3, "Average");
 
         // Assert
         Assert.Equal(4, avg.Resolve());
@@ -113,7 +113,7 @@ public class TransformTests
         var y = new Traceable<int>(20, "Y");
 
         // Act
-        var product = TraceableExtensions.Transform(x, y, "Multiply", (a, b) => a * b);
+        var product = TraceableExtensions.Transform(x, y, (a, b) => a * b, "Multiply");
 
         // Assert
         Assert.Equal("Multiply(X, Y)", product.Dependencies);
@@ -128,7 +128,7 @@ public class TransformTests
         var c = new Traceable<int>(3, "C");
 
         // Act
-        var result = TraceableExtensions.Transform(a, b, c, "Combine", (x, y, z) => x + y + z);
+        var result = TraceableExtensions.Transform(a, b, c, (x, y, z) => x + y + z, "Combine");
 
         // Assert
         var graph = result.BuildGraph();
@@ -154,8 +154,8 @@ public class TransformTests
         var value = new Traceable<double>(10.7, "Value");
 
         // Act
-        var floor = value.Transform<double, int>("Floor", x => (int)Math.Floor(x));
-        var doubled = floor.Transform<int, int>("Double", x => x * 2);
+        var floor = value.Transform<double, int>(x => (int)Math.Floor(x), "Floor");
+        var doubled = floor.Transform<int, int>(x => x * 2, "Double");
 
         // Assert
         Assert.Equal(20, doubled.Resolve());
@@ -171,7 +171,7 @@ public class TransformTests
 
         // Act
         var sum = a + b;
-        var rounded = sum.Transform<double, int>("Floor", x => (int)Math.Floor(x));
+        var rounded = sum.Transform<double, int>(x => (int)Math.Floor(x), "Floor");
 
         // Assert
         Assert.Equal(16, rounded.Resolve());
@@ -191,7 +191,7 @@ public class TransformTests
         var sum = a + b;
 
         // Act
-        var transformed = sum.Transform<int, int>("Double", x => x * 2);
+        var transformed = sum.Transform<int, int>(x => x * 2, "Double");
         var dependencyNames = transformed.GetDependencyNames().ToList();
 
         // Assert
@@ -207,7 +207,7 @@ public class TransformTests
         var value = new Traceable<int>(100, "Value");
 
         // Act
-        var transformed = value.Transform<int, string>("Format", x => $"${x}");
+        var transformed = value.Transform<int, string>(x => $"${x}", "Format");
         transformed.Description = "Currency formatter";
 
         // Assert
@@ -226,7 +226,7 @@ public class TransformTests
         var value = new Traceable<double>(7.5, "Value");
 
         // Act
-        var intValue = value.Transform<double, int>("ToInt", x => (int)x);
+        var intValue = value.Transform<double, int>(x => (int)x, "ToInt");
 
         // Assert
         Assert.IsType<int>(intValue.Resolve());
@@ -240,7 +240,7 @@ public class TransformTests
         var number = new Traceable<decimal>(19.99m, "Price");
 
         // Act
-        var formatted = number.Transform<decimal, string>("FormatPrice", x => $"${x:F2}");
+        var formatted = number.Transform<decimal, string>(x => $"${x:F2}", "FormatPrice");
 
         // Assert
         Assert.Equal("$19.99", formatted.Resolve());
@@ -253,7 +253,7 @@ public class TransformTests
         var temperature = new Traceable<int>(75, "Temperature");
 
         // Act
-        var isHot = temperature.Transform<int, bool>("IsHot", x => x > 80);
+        var isHot = temperature.Transform<int, bool>(x => x > 80, "IsHot");
 
         // Assert
         Assert.False(isHot.Resolve());
@@ -268,7 +268,7 @@ public class TransformTests
         var text = new Traceable<string>("Answer", "Text");
 
         // Act
-        var combined = TraceableExtensions.Transform(text, number, "Combine", (t, n) => $"{t}: {n}");
+        var combined = TraceableExtensions.Transform(text, number, (t, n) => $"{t}: {n}", "Combine");
 
         // Assert
         Assert.Equal("Answer: 42", combined.Resolve());
@@ -287,7 +287,7 @@ public class TransformTests
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            nullSource.Transform<int, string>("ToString", x => x.ToString()));
+            nullSource.Transform<int, string>(x => x.ToString(), "ToString"));
     }
 
     [Fact]
@@ -298,7 +298,7 @@ public class TransformTests
 
         // Act & Assert
         Assert.Throws<ArgumentException>(() =>
-            value.Transform<int, int>(null, x => x * 2));
+            value.Transform<int, int>(x => x * 2, null));
     }
 
     [Fact]
@@ -309,7 +309,7 @@ public class TransformTests
 
         // Act & Assert
         Assert.Throws<ArgumentException>(() =>
-            value.Transform<int, int>("", x => x * 2));
+            value.Transform<int, int>(x => x * 2, ""));
     }
 
     [Fact]
@@ -320,7 +320,7 @@ public class TransformTests
 
         // Act & Assert
         Assert.Throws<ArgumentException>(() =>
-            value.Transform<int, int>("   ", x => x * 2));
+            value.Transform<int, int>(x => x * 2, "   "));
     }
 
     [Fact]
@@ -331,7 +331,7 @@ public class TransformTests
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            value.Transform<int, int>("Double", null));
+            value.Transform<int, int>(null, "Double"));
     }
 
     [Fact]
@@ -339,7 +339,7 @@ public class TransformTests
     {
         // Arrange
         var value = new Traceable<int>(0, "Value");
-        var divided = value.Transform<int, int>("Reciprocal", x => 10 / x);
+        var divided = value.Transform<int, int>(x => 10 / x, "Reciprocal");
 
         // Act & Assert
         Assert.Throws<DivideByZeroException>(() => divided.Resolve());
@@ -353,7 +353,7 @@ public class TransformTests
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            TraceableExtensions.Transform<int, int, int>(null, b, "Sum", (x, y) => x + y));
+            TraceableExtensions.Transform<int, int, int>(null, b, (x, y) => x + y, "Sum"));
     }
 
     [Fact]
@@ -365,65 +365,53 @@ public class TransformTests
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            TraceableExtensions.Transform<int, int, int, int>(a, b, null, "Avg", (x, y, z) => (x + y + z) / 3));
+            TraceableExtensions.Transform<int, int, int, int>(a, b, null, (x, y, z) => (x + y + z) / 3, "Avg"));
     }
 
     #endregion
 
-    #region Reset Propagation
+    #region Reload Propagation
 
     [Fact]
-    public void Transform_AfterReset_ShouldRecomputeValue()
+    public void Transform_AfterReload_ShouldRecomputeValue()
     {
-        // Arrange
         var value = new Traceable<int>(10, "Value");
-        var doubled = value.Transform<int, int>("Double", x => x * 2);
+        var doubled = value.Transform<int, int>(x => x * 2, "Double");
 
-        // Assert initial value
         Assert.Equal(20, doubled.Resolve());
 
-        // Act - reset the base value
-        value.Reset(15);
+        value.Reload(15);
 
-        // Assert - transformed value should update
         Assert.Equal(30, doubled.Resolve());
     }
 
     [Fact]
-    public void Transform_InComplexChain_ResetShouldPropagate()
+    public void Transform_InComplexChain_ReloadShouldPropagate()
     {
-        // Arrange
         var a = new Traceable<int>(5, "A");
         var b = new Traceable<int>(3, "B");
         var sum = a + b;
-        var doubled = sum.Transform<int, int>("Double", x => x * 2);
+        var doubled = sum.Transform<int, int>(x => x * 2, "Double");
         var final = doubled + new Traceable<int>(10, "C");
 
-        // Assert initial value
         Assert.Equal(26, final.Resolve()); // (5 + 3) * 2 + 10 = 26
 
-        // Act - reset base value
-        a.Reset(10);
+        a.Reload(10);
 
-        // Assert - entire chain should update
         Assert.Equal(36, final.Resolve()); // (10 + 3) * 2 + 10 = 36
     }
 
     [Fact]
-    public void Transform_MultiInput_AfterReset_ShouldRecompute()
+    public void Transform_MultiInput_AfterReload_ShouldRecompute()
     {
-        // Arrange
         var a = new Traceable<int>(2, "A");
         var b = new Traceable<int>(3, "B");
-        var product = TraceableExtensions.Transform(a, b, "Product", (x, y) => x * y);
+        var product = TraceableExtensions.Transform(a, b, (x, y) => x * y, "Product");
 
-        // Assert initial value
         Assert.Equal(6, product.Resolve());
 
-        // Act - reset one operand
-        a.Reset(5);
+        a.Reload(5);
 
-        // Assert - result should update
         Assert.Equal(15, product.Resolve());
     }
 
@@ -438,7 +426,7 @@ public class TransformTests
         var a = new Traceable<double>(10.7, "A");
         var b = new Traceable<double>(5.3, "B");
         var sum = a + b;
-        var rounded = sum.Transform<double, int>("Floor", x => (int)Math.Floor(x));
+        var rounded = sum.Transform<double, int>(x => (int)Math.Floor(x), "Floor");
 
         // Act
         var graph = rounded.BuildGraph();
@@ -472,7 +460,7 @@ public class TransformTests
         var sum = a + product;
 
         // Act
-        var transformed = sum.Transform<int, string>("Format", x => $"Result: {x}");
+        var transformed = sum.Transform<int, string>(x => $"Result: {x}", "Format");
 
         // Assert
         Assert.Equal("Format(A + B * C)", transformed.Dependencies);
@@ -486,7 +474,7 @@ public class TransformTests
         var value = new Traceable<int>(42, "Value");
 
         // Act
-        var transformed = value.Transform<int, string>("Stringify", x => x.ToString());
+        var transformed = value.Transform<int, string>(x => x.ToString(), "Stringify");
 
         // Assert
         Assert.Equal("Stringify(Value)", transformed.Name);
@@ -500,10 +488,169 @@ public class TransformTests
         var value = new Traceable<int>(42, "Value");
 
         // Act
-        var transformed = value.Transform<int, string>("Format", x => $"Number: {x}");
+        var transformed = value.Transform<int, string>(x => $"Number: {x}", "Format");
 
         // Assert
         Assert.Equal("Number: 42", transformed.ValueAsObject);
+    }
+
+    #endregion
+
+    #region Split Tests
+
+    [Fact]
+    public void Split_TwoOutputs_ShouldCreateTwoTraceables()
+    {
+        // Arrange
+        var value = new Traceable<decimal>(100m, "Price");
+
+        // Act
+        var (low, high) = value.Split(x => (x * 0.9m, x * 1.1m), "Low", "High");
+
+        // Assert
+        Assert.Equal(90m, low.Resolve());
+        Assert.Equal(110m, high.Resolve());
+        Assert.Equal("Low(Price)", low.Dependencies);
+        Assert.Equal("High(Price)", high.Dependencies);
+    }
+
+    [Fact]
+    public void Split_ThreeOutputs_ShouldCreateThreeTraceables()
+    {
+        // Arrange
+        var value = new Traceable<int>(100, "Value");
+
+        // Act
+        var (min, mid, max) = value.Split(x => (x - 10, x, x + 10), "Min", "Mid", "Max");
+
+        // Assert
+        Assert.Equal(90, min.Resolve());
+        Assert.Equal(100, mid.Resolve());
+        Assert.Equal(110, max.Resolve());
+        Assert.Equal("Min(Value)", min.Dependencies);
+        Assert.Equal("Mid(Value)", mid.Dependencies);
+        Assert.Equal("Max(Value)", max.Dependencies);
+    }
+
+    [Fact]
+    public void Split_DifferentOutputTypes_ShouldWork()
+    {
+        // Arrange
+        var value = new Traceable<double>(3.14159, "Pi");
+
+        // Act
+        var (truncated, formatted) = value.Split(x => ((int)x, x.ToString("F2")), "Truncated", "Formatted");
+
+        // Assert
+        Assert.Equal(3, truncated.Resolve());
+        Assert.Equal("3.14", formatted.Resolve());
+    }
+
+    [Fact]
+    public void Split_FromComposite_ShouldTrackDependencies()
+    {
+        // Arrange
+        var a = new Traceable<int>(10, "A");
+        var b = new Traceable<int>(5, "B");
+        var sum = a + b;
+
+        // Act
+        var (doubled, halved) = sum.Split(x => (x * 2, x / 2), "Doubled", "Halved");
+
+        // Assert
+        Assert.Equal(30, doubled.Resolve());
+        Assert.Equal(7, halved.Resolve());
+        Assert.Equal("Doubled(A + B)", doubled.Dependencies);
+        Assert.Equal("Halved(A + B)", halved.Dependencies);
+    }
+
+    [Fact]
+    public void Split_ReloadShouldPropagate()
+    {
+        // Arrange
+        var value = new Traceable<int>(100, "Value");
+        var (low, high) = value.Split(x => (x - 10, x + 10), "Low", "High");
+
+        Assert.Equal(90, low.Resolve());
+        Assert.Equal(110, high.Resolve());
+
+        // Act
+        value.Reload(200);
+
+        // Assert
+        Assert.Equal(190, low.Resolve());
+        Assert.Equal(210, high.Resolve());
+    }
+
+    [Fact]
+    public void Split_BuildGraph_ShouldShowSourceAsChild()
+    {
+        // Arrange
+        var value = new Traceable<int>(50, "Value");
+        var (low, high) = value.Split(x => (x - 5, x + 5), "Low", "High");
+
+        // Act
+        var lowGraph = low.BuildGraph();
+        var highGraph = high.BuildGraph();
+
+        // Assert
+        Assert.Equal("Low", lowGraph.Operation);
+        Assert.Single(lowGraph.Children);
+        Assert.Equal("Value", lowGraph.Children[0].Name);
+
+        Assert.Equal("High", highGraph.Operation);
+        Assert.Single(highGraph.Children);
+        Assert.Equal("Value", highGraph.Children[0].Name);
+    }
+
+    [Fact]
+    public void Split_OutputsCanBeUsedInFurtherOperations()
+    {
+        // Arrange
+        var value = new Traceable<int>(100, "Value");
+        var (low, high) = value.Split(x => (x - 20, x + 20), "Low", "High");
+
+        // Act
+        var range = high - low;
+
+        // Assert
+        Assert.Equal(40, range.Resolve());
+        Assert.Equal("High(Value) - Low(Value)", range.Dependencies);
+    }
+
+    [Fact]
+    public void Split_NullSource_ShouldThrow()
+    {
+        // Arrange
+        ITraceable<int> nullSource = null;
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() =>
+            nullSource.Split(x => (x, x), "A", "B"));
+    }
+
+    [Fact]
+    public void Split_NullSplitter_ShouldThrow()
+    {
+        // Arrange
+        var value = new Traceable<int>(10, "Value");
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() =>
+            value.Split<int, int, int>(null, "A", "B"));
+    }
+
+    [Fact]
+    public void Split_NullLabel_ShouldThrow()
+    {
+        // Arrange
+        var value = new Traceable<int>(10, "Value");
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() =>
+            value.Split(x => (x, x), null, "B"));
+        Assert.Throws<ArgumentException>(() =>
+            value.Split(x => (x, x), "A", null));
     }
 
     #endregion

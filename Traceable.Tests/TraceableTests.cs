@@ -39,11 +39,11 @@ public class TraceableTests
     }
 
     [Fact]
-    public void Reset_ShouldUpdateValue()
+    public void Reload_ShouldUpdateValue()
     {
         var entity = new Traceable<int>(10, "Counter");
 
-        entity.Reset(20);
+        entity.Reload(20);
 
         Assert.Equal(20, entity.Resolve());
         Assert.Equal(20, entity.Value);

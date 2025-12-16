@@ -163,10 +163,10 @@ public class ArithmeticOperatorTests
 
     #endregion
 
-    #region Reset Propagation
+    #region Reload Propagation
 
     [Fact]
-    public void Reset_ShouldPropagateToComposites()
+    public void Reload_ShouldPropagateToComposites()
     {
         var a = new Traceable<int>(10, "A");
         var b = new Traceable<int>(5, "B");
@@ -174,20 +174,20 @@ public class ArithmeticOperatorTests
 
         Assert.Equal(15, sum.Resolve());
 
-        a.Reset(20);
+        a.Reload(20);
 
         Assert.Equal(25, sum.Resolve());
     }
 
     [Fact]
-    public void Reset_OnComposite_ShouldThrow()
+    public void Reload_OnComposite_ShouldThrow()
     {
         var a = new Traceable<int>(1, "A");
         var b = new Traceable<int>(2, "B");
         var sum = a + b;
 
-        var ex = Assert.Throws<InvalidOperationException>(() => sum.Reset(10));
-        Assert.Contains("Cannot reset a composite entity", ex.Message);
+        var ex = Assert.Throws<InvalidOperationException>(() => sum.Reload(10));
+        Assert.Contains("Cannot reload a composite entity", ex.Message);
     }
 
     #endregion

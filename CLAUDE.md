@@ -12,7 +12,10 @@ Traceable is a .NET Standard 2.0 library that enables traceable computations whe
   - `ITraceable.cs` - Core interfaces (`ITraceableBase`, `ITraceable<T>`)
   - `Traceable.cs` - Main implementation with operator overloading
   - `ITraceableOperators.cs` - Operator interfaces for custom type support
-  - `TraceableExtensions.cs` - Transform extension methods for type conversion
+  - `TraceableExtensions.cs` - Transform and AsScope extension methods
+  - `TraceableOperations.cs` - Type dispatch helpers (Add, Subtract, etc.)
+  - `TraceableScope.cs` - Ambient scope context for conditional dependencies
+  - `TraceableGraphRenderer.cs` - ASCII tree rendering
   - `GraphNode.cs` - Data structure for dependency graph representation
 - `Traceable.Tests/` - Test project (.NET 10.0)
   - Uses xunit for testing
@@ -69,7 +72,7 @@ The library uses **operator overloading** combined with the **composite pattern*
    - **Base entities**: Created via public constructor, hold a mutable value
    - **Composite entities**: Created via operators/transforms, hold operand references and a compute function
 
-3. **Lazy Evaluation**: Values are computed on-demand via `Resolve()`, not at construction time. This allows efficient propagation when base values change via `Reset()`.
+3. **Lazy Evaluation**: Values are computed on-demand via `Resolve()`, not at construction time. This allows efficient propagation when base values change via `Reload()`.
 
 4. **Dependency Tracking**: Each composite entity maintains `ITraceableBase[]` operand references, enabling:
    - Dependency expression generation (e.g., "A + B - C") with proper operator precedence
@@ -129,7 +132,7 @@ Tests use xunit. When adding new operators or types:
 1. Test basic operations and return values
 2. Test `Dependencies` string generation
 3. Test `BuildGraph()` structure
-4. Verify `Reset()` propagates changes correctly
+4. Verify `Reload()` propagates changes correctly
 
 ## Target Framework
 

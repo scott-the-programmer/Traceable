@@ -1,259 +1,135 @@
 # Traceable
 
-Trying to simplify troubleshooting for any sort of calculation
-
-## Overview
-
-_This project is inspired by [Pulumi's](https://www.pulumi.com/) C# SDK._
-
-Ever wonder how that number was calculated?
-
-Or stare at an if statement for far too long?
-
-Leverage `Traceable<T>` and look 
-
-## Installation
+A .NET library that wraps values so you can trace where they came from and how they were calculated.
 
 ```bash
 dotnet add package Traceable
 ```
 
-## Real-World Examples
+## Usage
 
-### 1. RPG Damage System
+### 1. Arithmetic Chains
 
-Build dynamic game systems where stats automatically propagate to derived values like damage or health.
-
-```csharp
-using Traceable;
-
-// 1. Define base character stats
-var strength = new Traceable<int>(18, "Strength");
-var weaponDamage = new Traceable<int>(5, "WeaponBase");
-var buff = new Traceable<int>(0, "ActiveBuff");
-
-// 2. Define the damage mechanics
-// Damage = (Strength / 2) + Weapon + Buffs
-var strengthBonus = strength / new Traceable<int>(2, "StrScale");
-var totalDamage = strengthBonus + weaponDamage + buff;
-
-totalDamage.Description = "Total Hit Damage";
-
-// 3. Initial Combat State
-Console.WriteLine($"Hit: {totalDamage.Resolve()}");
-// Result: (18/2) + 5 + 0 = 14
-
-// 4. Gameplay Event: Player activates "Rage" (Buff +5)
-buff.Reset(5);
-
-// The damage calculation automatically updates
-Console.WriteLine($"Rage Hit: {totalDamage.Resolve()}");
-// Result: (18/2) + 5 + 5 = 19
-
-// 5. Gameplay Event: Player equips "Greatsword" (Weapon 12)
-weaponDamage.Reset(12);
-
-Console.WriteLine($"Greatsword Hit: {totalDamage.Resolve()}");
-// Result: (18/2) + 12 + 5 = 26
-```
-
-### 2. Profit Analysis & Troubleshooting
-
-Use `Reset` to perform "what-if" analysis on business logic. Perfect for troubleshooting unexpected results by isolating variables.
-
-```csharp
-// 1. Define the Financial Model
-var revenue = new Traceable<decimal>(10000m, "Revenue");
-var cogs = new Traceable<decimal>(8500m, "COGS"); // Cost of Goods Sold
-var taxRate = new Traceable<decimal>(0.20m, "TaxRate");
-var fixedCosts = new Traceable<decimal>(1000m, "Overhead");
-
-var grossProfit = revenue - cogs;
-var tax = grossProfit * taxRate;
-var netIncome = grossProfit - tax - fixedCosts;
-
-// 2. Analyze Initial Performance
-Console.WriteLine($"Net Income: {netIncome.Resolve()}");
-// Calculation: (10000 - 8500) = 1500 Gross
-// Tax: 1500 * 0.20 = 300
-// Net: 1500 - 300 - 1000 = 200
-// Result: 200 (Too low!)
-
-// 3. Troubleshooting: "What if we negotiate better material costs?"
-// Reducing COGS to 6000
-cogs.Reset(6000m);
-
-Console.WriteLine($"Scenario A (Cheaper Materials): {netIncome.Resolve()}");
-// New Gross: 4000
-// New Tax: 800
-// New Net: 4000 - 800 - 1000 = 2200
-
-// 4. Analyze the dependencies for the new scenario
-netIncome.PrintConsole();
-/* Output:
-Revenue - COGS - (Revenue - COGS) * TaxRate - Overhead = 2200.00
-├── Revenue - COGS - (Revenue - COGS) * TaxRate = 3200.00
-│   ├── Revenue - COGS = 4000
-│   │   ├── Revenue = 10000
-│   │   └── COGS = 6000
-│   └── (Revenue - COGS) * TaxRate = 800.00
-│       ├── Revenue - COGS = 4000 ...
-│       └── TaxRate = 0.20
-└── Overhead = 1000
-*/
-```
-
-## Core Concepts
-
-### Traceable Entities
-
-A traceable entity wraps a value and maintains metadata about its origin:
-
-```csharp
-var price = new Traceable<decimal>(100.00m, "BasePrice");
-price.Description = "Product base price";
-
-Console.WriteLine(price.Name);        // BasePrice
-Console.WriteLine(price.Value);       // 100.00
-Console.WriteLine(price.Description); // Product base price
-```
-
-### Operations and Dependencies
-
-All operations create new traceable entities that remember their computation:
-
-```csharp
-var basePrice = new Traceable<decimal>(100.00m, "BasePrice");
-var taxRate = new Traceable<decimal>(0.08m, "TaxRate");
-var discount = new Traceable<decimal>(10.00m, "Discount");
-
-var tax = basePrice * taxRate;
-var total = basePrice + tax - discount;
-
-Console.WriteLine(total.Dependencies);
-// Output: BasePrice + BasePrice * TaxRate - Discount
-```
-
-### Dynamic Updates with Reset
-
-Update base entity values and see changes propagate through computations:
-
-```csharp
-var units = new Traceable<int>(10, "Units");
-var pricePerUnit = new Traceable<decimal>(5.00m, "PricePerUnit");
-
-var total = units * pricePerUnit;
-Console.WriteLine(total.Resolve());  // 50.00
-
-// Update the base value
-units.Reset(20);
-Console.WriteLine(total.Resolve());  // 100.00 (automatically recalculated)
-```
-
-## Supported Types and Operations
-
-### Numeric Types (int, decimal, double)
-
-- **Arithmetic**: `+`, `-`, `*`, `/`
-- **Comparison**: `>`, `<`, `>=`, `<=`, `==`, `!=`
+Track how computed values flow through math operations. See the full dependency tree.
 
 ```csharp
 var a = new Traceable<int>(10, "A");
 var b = new Traceable<int>(5, "B");
+var result = (a + b) * new Traceable<int>(2, "C");
 
-var sum = a + b;
-var isGreater = a > b;  // Returns Traceable<bool>
+Console.WriteLine(result.Dependencies);  // (A + B) * C
 ```
 
-### Boolean Type
+### 2. Incorperate decisions into your calculations
 
-- **Logical**: `&` (AND), `|` (OR)
-- **Comparison**: `==`, `!=`
-
-```csharp
-var isActive = new Traceable<bool>(true, "IsActive");
-var hasLicense = new Traceable<bool>(true, "HasLicense");
-var canDrive = isActive & hasLicense;
-```
-
-### String Type
-
-- **Concatenation**: `+`
-- **Comparison**: `==`, `!=`
+Values created inside a scope automatically depend on the condition.
 
 ```csharp
-var first = new Traceable<string>("John", "First");
-var last = new Traceable<string>("Doe", "Last");
-var full = first + last;
-```
+var ready = new Traceable<bool>(true, "IsReady");
+var steady = new Traceable<bool>(true, "IsSteady");
 
-### Custom Types
-
-Traceable supports custom types through optional operator interfaces. Implement the interfaces that match the operations your type supports:
-
-#### Custom Type Example: Money
-
-```csharp
-public struct Money : ITraceableArithmetic<Money>, IComparable<Money>
+using ((ready && steady).AsScope())
 {
-    public decimal Amount { get; }
-    public string Currency { get; }
-    // Implementation of Add, Subtract, etc...
-}
-
-// Usage
-var price = new Traceable<Money>(new Money(100m, "USD"), "Price");
-var tax = new Traceable<Money>(new Money(20m, "USD"), "Tax");
-var total = price + tax;
-```
-
-## Advanced Usage
-
-### Complex Computation Chains
-
-```csharp
-var revenue = new Traceable<decimal>(10000m, "Revenue");
-var cogs = new Traceable<decimal>(6000m, "COGS");
-var expenses = new Traceable<decimal>(2000m, "OpEx");
-
-var grossProfit = revenue - cogs;
-var netIncome = grossProfit - expenses;
-
-netIncome.PrintConsole();
-/* Output:
-Revenue - COGS - OpEx = 2000.00
-├── Revenue - COGS = 4000.00
-│   ├── Revenue - COGS = 4000
-│   │   ├── Revenue = 10000
-│   │   └── COGS = 6000
-│   └── OpEx = 2000
-*/
-```
-
-## API Reference
-
-### Core Interface
-
-```csharp
-public interface ITraceable<T>
-{
-    string Name { get; }
-    T Value { get; }
-    string Dependencies { get; }
-    T Resolve();
-    void Reset(T newValue);
+    var capacity = new Traceable<int>(100, "Go!!");
+    Console.WriteLine(config.Dependencies);  // Go!! (when IsReady & IsSteady)
 }
 ```
 
-## Requirements
+### 3. Live Reload
 
-- **.NET Standard 2.0** or higher
-- Compatible with .NET Framework 4.6.1+, .NET Core 2.0+, .NET 5+
+Easily explore "what-if" scenarios by amending values within the chain
 
-## Contributing
+```csharp
+var damage = new Traceable<int>(10, "BaseDamage");
+var hit = damage * new Traceable<int>(2, "Multiplier");
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details.
+Console.WriteLine(hit.Resolve());  // 20
+
+damage.Reload(50);
+Console.WriteLine(hit.Resolve());  // 100
+```
+
+### 4. Transform Traceables into different types
+
+```csharp
+// Transform a traceable to a different type
+var damage = new Traceable<int>(10, "BaseDamage");
+var crit = new Traceable<decimal>(1.2m, "CritModifier");
+var message = (damage * crit).Transform(d => $"You dealt {d} damage!", "Message");
+
+Console.WriteLine(message.Resolve());       // You dealt 12 damage!
+Console.WriteLine(message.Dependencies);    // Message(CritHit(BaseDamage, CritModifier))
+
+// Split a traceable into multiple outputs
+var damage = new Traceable<int>(10, "BaseDamage");
+var (fireDamage, posionDamage) = damage.Split(d => (d * 0.1m, d * 0.2m), "Fire", "Poison");
+```
+
+---
+
+## Example
+
+### RPG Damage System
+
+```csharp
+var strength = new Traceable<int>(18, "Strength");
+var weaponDamage = new Traceable<int>(5, "WeaponBase");
+var buff = new Traceable<int>(0, "ActiveBuff");
+
+var strengthBonus = strength / new Traceable<int>(2, "StrScale");
+var totalDamage = strengthBonus + weaponDamage + buff;
+
+Console.WriteLine($"Hit: {totalDamage.Resolve()}");  // 14
+
+// Comparisons return Traceable<bool>
+var critThreshold = new Traceable<int>(20, "CritThreshold");
+var isEnraged = new Traceable<bool>(false, "IsEnraged");
+
+var overThreshold = totalDamage > critThreshold;
+var isCritical = overThreshold & isEnraged;
+
+Console.WriteLine($"Is Critical: {isCritical.Resolve()}");  // False
+
+// Player activates "Rage" and equips "Greatsword"
+buff.Reload(5);
+weaponDamage.Reload(12);
+isEnraged.Reload(true);
+
+Console.WriteLine($"Damage: {totalDamage.Resolve()}");      // 26
+Console.WriteLine($"Is Critical: {isCritical.Resolve()}");  // True
+Console.WriteLine(isCritical.Dependencies);
+// Strength / StrScale + WeaponBase + ActiveBuff > CritThreshold & IsEnraged
+
+// Calculate a battle message string (Traceable<string>) from the damage
+var playerName = new Traceable<string>("Hero", "Name");
+var message = playerName + new Traceable<string>(" hits for ", "Msg")
+            + totalDamage.Transform(d => d.ToString(), "Format");
+
+Console.WriteLine(message.Resolve()); // Hero hits for 26
+```
+
+### Scoped Dependencies
+
+Values created inside a scope automatically track the scope condition:
+
+```csharp
+var inCombat = new Traceable<bool>(true, "InCombat");
+
+using (inCombat.AsScope())
+{
+    var adrenaline = new Traceable<int>(50, "Adrenaline");
+    var focus = new Traceable<int>(30, "Focus");
+    var bonus = adrenaline + focus;
+
+    Console.WriteLine(adrenaline.Dependencies);  // Adrenaline (when InCombat)
+    Console.WriteLine(bonus.Dependencies);       // Adrenaline (when InCombat) + Focus (when InCombat)
+
+    // Reload still works on scoped values
+    adrenaline.Reload(75);
+    Console.WriteLine(bonus.Resolve());  // 105
+}
+```
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT

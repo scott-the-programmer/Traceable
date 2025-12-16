@@ -80,7 +80,7 @@ public class CustomTypeTests
     }
 
     [Fact]
-    public void Vector2D_Reset_PropagatesChanges()
+    public void Vector2D_Reload_PropagatesChanges()
     {
         var v1 = new Traceable<Vector2D>(new Vector2D(1, 2), "V1");
         var v2 = new Traceable<Vector2D>(new Vector2D(3, 4), "V2");
@@ -88,7 +88,7 @@ public class CustomTypeTests
 
         Assert.Equal(new Vector2D(4, 6), sum.Resolve());
 
-        v1.Reset(new Vector2D(10, 20));
+        v1.Reload(new Vector2D(10, 20));
 
         Assert.Equal(new Vector2D(13, 24), sum.Resolve());
     }
