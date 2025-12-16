@@ -11,7 +11,7 @@ public class TraceableStateTests
             ["confidence"] = 0.95
         };
 
-        var entity = new Traceable<int>("Test", 42, arbitraryState: arbitraryState);
+        var entity = new Traceable<int>(42, "Test", arbitraryState: arbitraryState);
 
         Assert.True(entity.HasArbitraryState);
         Assert.Equal(2, entity.ArbitraryState.Count);
@@ -29,7 +29,7 @@ public class TraceableStateTests
             ["max"] = 200m
         };
 
-        var entity = new Traceable<decimal>("Test", 75m, valueState: valueState);
+        var entity = new Traceable<decimal>(75m, "Test", valueState: valueState);
 
         Assert.True(entity.HasValueState);
         Assert.Equal(3, entity.ValueState.Count);
@@ -51,7 +51,7 @@ public class TraceableStateTests
             ["threshold"] = 100m
         };
 
-        var entity = new Traceable<decimal>("Revenue", 150m, arbitraryState, valueState);
+        var entity = new Traceable<decimal>(150m, "Revenue", arbitraryState, valueState);
 
         Assert.True(entity.HasArbitraryState);
         Assert.True(entity.HasValueState);
@@ -63,7 +63,7 @@ public class TraceableStateTests
     [Fact]
     public void BaseEntity_WithoutState_ReturnsEmptyDictionaries()
     {
-        var entity = new Traceable<int>("Test", 42);
+        var entity = new Traceable<int>(42, "Test");
 
         Assert.False(entity.HasArbitraryState);
         Assert.False(entity.HasValueState);
@@ -77,8 +77,8 @@ public class TraceableStateTests
         var arbitraryState1 = new Dictionary<string, object> { ["tag"] = "A" };
         var arbitraryState2 = new Dictionary<string, object> { ["tag"] = "B" };
 
-        var entity1 = new Traceable<int>("A", 10, arbitraryState: arbitraryState1);
-        var entity2 = new Traceable<int>("B", 20, arbitraryState: arbitraryState2);
+        var entity1 = new Traceable<int>(10, "A", arbitraryState: arbitraryState1);
+        var entity2 = new Traceable<int>(20, "B", arbitraryState: arbitraryState2);
 
         var composite = entity1 + entity2;
 
@@ -95,7 +95,7 @@ public class TraceableStateTests
     public void ArbitraryState_IsReadOnly_ExposesIReadOnlyDictionary()
     {
         var arbitraryState = new Dictionary<string, object> { ["key"] = "value" };
-        var entity = new Traceable<int>("Test", 42, arbitraryState: arbitraryState);
+        var entity = new Traceable<int>(42, "Test", arbitraryState: arbitraryState);
 
         Assert.IsAssignableFrom<IReadOnlyDictionary<string, object>>(entity.ArbitraryState);
 
@@ -107,7 +107,7 @@ public class TraceableStateTests
     public void ValueState_IsReadOnly_ExposesIReadOnlyDictionary()
     {
         var valueState = new Dictionary<string, int> { ["key"] = 100 };
-        var entity = new Traceable<int>("Test", 42, valueState: valueState);
+        var entity = new Traceable<int>(42, "Test", valueState: valueState);
 
         Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(entity.ValueState);
 
@@ -123,7 +123,7 @@ public class TraceableStateTests
             ["currency"] = "USD",
             ["precision"] = 2
         };
-        var entity = new Traceable<decimal>("Revenue", 10000m, arbitraryState: arbitraryState);
+        var entity = new Traceable<decimal>(10000m, "Revenue", arbitraryState: arbitraryState);
 
         var graph = entity.BuildGraph();
 
@@ -140,7 +140,7 @@ public class TraceableStateTests
             ["threshold"] = 100m,
             ["target"] = 200m
         };
-        var entity = new Traceable<decimal>("Sales", 150m, valueState: valueState);
+        var entity = new Traceable<decimal>(150m, "Sales", valueState: valueState);
 
         var graph = entity.BuildGraph();
 
@@ -153,7 +153,7 @@ public class TraceableStateTests
     public void TryGetArbitraryState_WithExistingKey_ReturnsTrue()
     {
         var arbitraryState = new Dictionary<string, object> { ["key1"] = "value1" };
-        var entity = new Traceable<int>("Test", 42, arbitraryState: arbitraryState);
+        var entity = new Traceable<int>(42, "Test", arbitraryState: arbitraryState);
 
         var success = entity.TryGetArbitraryState("key1", out var value);
 
@@ -165,7 +165,7 @@ public class TraceableStateTests
     public void TryGetArbitraryState_WithMissingKey_ReturnsFalse()
     {
         var arbitraryState = new Dictionary<string, object> { ["key1"] = "value1" };
-        var entity = new Traceable<int>("Test", 42, arbitraryState: arbitraryState);
+        var entity = new Traceable<int>(42, "Test", arbitraryState: arbitraryState);
 
         var success = entity.TryGetArbitraryState("missing", out var value);
 
@@ -177,7 +177,7 @@ public class TraceableStateTests
     public void TryGetValueState_WithExistingKey_ReturnsTrue()
     {
         var valueState = new Dictionary<string, int> { ["threshold"] = 100 };
-        var entity = new Traceable<int>("Test", 42, valueState: valueState);
+        var entity = new Traceable<int>(42, "Test", valueState: valueState);
 
         var success = entity.TryGetValueState("threshold", out var value);
 
@@ -189,7 +189,7 @@ public class TraceableStateTests
     public void TryGetValueState_WithMissingKey_ReturnsFalse()
     {
         var valueState = new Dictionary<string, int> { ["threshold"] = 100 };
-        var entity = new Traceable<int>("Test", 42, valueState: valueState);
+        var entity = new Traceable<int>(42, "Test", valueState: valueState);
 
         var success = entity.TryGetValueState("missing", out var value);
 
@@ -201,7 +201,7 @@ public class TraceableStateTests
     public void HasArbitraryState_WithState_ReturnsTrue()
     {
         var arbitraryState = new Dictionary<string, object> { ["key"] = "value" };
-        var entity = new Traceable<int>("Test", 42, arbitraryState: arbitraryState);
+        var entity = new Traceable<int>(42, "Test", arbitraryState: arbitraryState);
 
         Assert.True(entity.HasArbitraryState);
     }
@@ -210,7 +210,7 @@ public class TraceableStateTests
     public void HasValueState_WithState_ReturnsTrue()
     {
         var valueState = new Dictionary<string, int> { ["key"] = 100 };
-        var entity = new Traceable<int>("Test", 42, valueState: valueState);
+        var entity = new Traceable<int>(42, "Test", valueState: valueState);
 
         Assert.True(entity.HasValueState);
     }
@@ -218,8 +218,8 @@ public class TraceableStateTests
     [Fact]
     public void BuildGraph_WithBothStates_ShowsInCorrectFormat()
     {
-        var base1 = new Traceable<decimal>("Base", 100m, arbitraryState: new Dictionary<string, object> { ["source"] = "db" });
-        var base2 = new Traceable<decimal>("Tax", 50m, valueState: new Dictionary<string, decimal> { ["rate"] = 0.5m });
+        var base1 = new Traceable<decimal>(100m, "Base", arbitraryState: new Dictionary<string, object> { ["source"] = "db" });
+        var base2 = new Traceable<decimal>(50m, "Tax", valueState: new Dictionary<string, decimal> { ["rate"] = 0.5m });
 
         var total = base1 + base2;
         total.Description = "Total";

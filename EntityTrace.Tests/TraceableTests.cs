@@ -5,7 +5,7 @@ public class TraceableTests
     [Fact]
     public void Constructor_ShouldCreateBaseEntity()
     {
-        var entity = new Traceable<int>("TestEntity", 42);
+        var entity = new Traceable<int>(42, "TestEntity");
 
         Assert.Equal("TestEntity", entity.Name);
         Assert.Equal(42, entity.Value);
@@ -15,7 +15,7 @@ public class TraceableTests
     [Fact]
     public void Description_ShouldBeSettable()
     {
-        var entity = new Traceable<int>("Test", 10);
+        var entity = new Traceable<int>(10, "Test");
 
         entity.Description = "A test entity";
 
@@ -25,7 +25,7 @@ public class TraceableTests
     [Fact]
     public void Dependencies_ForBaseEntity_ShouldReturnName()
     {
-        var entity = new Traceable<int>("MyEntity", 100);
+        var entity = new Traceable<int>(100, "MyEntity");
 
         Assert.Equal("MyEntity", entity.Dependencies);
     }
@@ -33,7 +33,7 @@ public class TraceableTests
     [Fact]
     public void GetDependencyNames_ForBaseEntity_ShouldReturnSingleName()
     {
-        var entity = new Traceable<int>("BaseEntity", 5);
+        var entity = new Traceable<int>(5, "BaseEntity");
 
         Assert.Equal(new[] { "BaseEntity" }, entity.GetDependencyNames());
     }
@@ -41,7 +41,7 @@ public class TraceableTests
     [Fact]
     public void Reset_ShouldUpdateValue()
     {
-        var entity = new Traceable<int>("Counter", 10);
+        var entity = new Traceable<int>(10, "Counter");
 
         entity.Reset(20);
 
@@ -52,7 +52,7 @@ public class TraceableTests
     [Fact]
     public void BuildGraph_ForBaseEntity_ShouldShowNameAndValue()
     {
-        var entity = new Traceable<int>("MyValue", 42);
+        var entity = new Traceable<int>(42, "MyValue");
         entity.Description = "Test Value";
 
         var graph = entity.BuildGraph();
@@ -67,7 +67,7 @@ public class TraceableTests
     [Fact]
     public void BuildGraph_ForBaseEntityWithoutDescription_ShouldShowNameAndValue()
     {
-        var entity = new Traceable<int>("MyValue", 42);
+        var entity = new Traceable<int>(42, "MyValue");
 
         var graph = entity.BuildGraph();
 
@@ -79,21 +79,21 @@ public class TraceableTests
     [Fact]
     public void Constructor_WithNullName_ShouldThrow()
     {
-        var ex = Assert.Throws<ArgumentException>(() => new Traceable<int>(null!, 10));
+        var ex = Assert.Throws<ArgumentException>(() => new Traceable<int>(10, null!));
         Assert.Contains("Name cannot be null or whitespace", ex.Message);
     }
 
     [Fact]
     public void Constructor_WithEmptyName_ShouldThrow()
     {
-        var ex = Assert.Throws<ArgumentException>(() => new Traceable<int>("", 10));
+        var ex = Assert.Throws<ArgumentException>(() => new Traceable<int>(10, ""));
         Assert.Contains("Name cannot be null or whitespace", ex.Message);
     }
 
     [Fact]
     public void ValueAsObject_ShouldReturnBoxedValue()
     {
-        var entity = new Traceable<int>("Test", 42);
+        var entity = new Traceable<int>(42, "Test");
 
         var value = entity.ValueAsObject;
 
@@ -109,7 +109,7 @@ public class TraceableTests
     [InlineData(int.MinValue)]
     public void IntegerEntity_ShouldHandleVariousValues(int value)
     {
-        var entity = new Traceable<int>("Test", value);
+        var entity = new Traceable<int>(value, "Test");
 
         Assert.Equal(value, entity.Resolve());
     }
@@ -120,7 +120,7 @@ public class TraceableTests
     [InlineData(-5.75)]
     public void DecimalEntity_ShouldHandleVariousValues(double value)
     {
-        var entity = new Traceable<decimal>("Test", (decimal)value);
+        var entity = new Traceable<decimal>((decimal)value, "Test");
 
         Assert.Equal((decimal)value, entity.Resolve());
     }
@@ -128,8 +128,8 @@ public class TraceableTests
     [Fact]
     public void BooleanEntity_ShouldWork()
     {
-        var trueEntity = new Traceable<bool>("IsTrue", true);
-        var falseEntity = new Traceable<bool>("IsFalse", false);
+        var trueEntity = new Traceable<bool>(true, "IsTrue");
+        var falseEntity = new Traceable<bool>(false, "IsFalse");
 
         Assert.True(trueEntity.Resolve());
         Assert.False(falseEntity.Resolve());
@@ -138,7 +138,7 @@ public class TraceableTests
     [Fact]
     public void StringEntity_ShouldWork()
     {
-        var entity = new Traceable<string>("Name", "Hello");
+        var entity = new Traceable<string>("Hello", "Name");
 
         Assert.Equal("Hello", entity.Resolve());
     }

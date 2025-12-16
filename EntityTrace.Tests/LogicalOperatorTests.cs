@@ -5,8 +5,8 @@ public class LogicalOperatorTests
     [Fact]
     public void LogicalAnd_Bool_ShouldWork()
     {
-        var a = new Traceable<bool>("A", true);
-        var b = new Traceable<bool>("B", true);
+        var a = new Traceable<bool>(true, "A");
+        var b = new Traceable<bool>(true, "B");
 
         var result = a & b;
 
@@ -17,8 +17,8 @@ public class LogicalOperatorTests
     [Fact]
     public void LogicalAnd_Bool_WithFalse_ShouldReturnFalse()
     {
-        var a = new Traceable<bool>("A", true);
-        var b = new Traceable<bool>("B", false);
+        var a = new Traceable<bool>(true, "A");
+        var b = new Traceable<bool>(false, "B");
 
         var result = a & b;
 
@@ -28,8 +28,8 @@ public class LogicalOperatorTests
     [Fact]
     public void LogicalOr_Bool_ShouldWork()
     {
-        var a = new Traceable<bool>("A", false);
-        var b = new Traceable<bool>("B", true);
+        var a = new Traceable<bool>(false, "A");
+        var b = new Traceable<bool>(true, "B");
 
         var result = a | b;
 
@@ -40,8 +40,8 @@ public class LogicalOperatorTests
     [Fact]
     public void BooleanAnd_OnNonBool_ShouldThrow()
     {
-        var a = new Traceable<int>("A", 1);
-        var b = new Traceable<int>("B", 2);
+        var a = new Traceable<int>(1, "A");
+        var b = new Traceable<int>(2, "B");
 
         var ex = Assert.Throws<InvalidOperationException>(() => { var result = a & b; });
         Assert.Contains("Operator & not supported for type Int32", ex.Message);

@@ -55,11 +55,11 @@ namespace EntityTrace
         /// <summary>
         /// Creates a new base traceable entity with a mutable value.
         /// </summary>
+        /// <param name="value">The initial value of the entity.</param>
         /// <param name="name">
         /// A unique identifier for this entity. Used in dependency expressions and graph visualization.
         /// Cannot be null or whitespace.
         /// </param>
-        /// <param name="value">The initial value of the entity.</param>
         /// <param name="arbitraryState">
         /// Optional metadata dictionary for storing arbitrary key-value pairs.
         /// Useful for attaching context like units, sources, or validation rules.
@@ -72,17 +72,17 @@ namespace EntityTrace
         /// <example>
         /// <code>
         /// // Simple creation
-        /// var price = new Traceable&lt;decimal&gt;("Price", 99.99m);
+        /// var price = new Traceable&lt;decimal&gt;(99.99m, "Price");
         ///
         /// // With metadata
-        /// var temperature = new Traceable&lt;double&gt;("Temperature", 72.5,
+        /// var temperature = new Traceable&lt;double&gt;(72.5, "Temperature",
         ///     arbitraryState: new Dictionary&lt;string, object?&gt; { ["unit"] = "Fahrenheit" },
         ///     valueState: new Dictionary&lt;string, double&gt; { ["min"] = 60.0, ["max"] = 80.0 });
         /// </code>
         /// </example>
         public Traceable(
-            string name,
             T value,
+            string name,
             IReadOnlyDictionary<string, object?>? arbitraryState = null,
             IReadOnlyDictionary<string, T>? valueState = null)
         {
@@ -496,8 +496,8 @@ namespace EntityTrace
         /// </remarks>
         public static Traceable<bool> operator ==(Traceable<T> left, Traceable<T> right)
         {
-            if (ReferenceEquals(left, null) && ReferenceEquals(right, null)) return new Traceable<bool>("true", true);
-            if (ReferenceEquals(left, null) || ReferenceEquals(right, null)) return new Traceable<bool>("false", false);
+            if (ReferenceEquals(left, null) && ReferenceEquals(right, null)) return new Traceable<bool>(true, "true");
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null)) return new Traceable<bool>(false, "false");
             return new Traceable<bool>("==", new ITraceableBase[] { left, right },
                 () => EqualityComparer<T>.Default.Equals(left.Resolve(), right.Resolve()));
         }
@@ -514,8 +514,8 @@ namespace EntityTrace
         /// </remarks>
         public static Traceable<bool> operator !=(Traceable<T> left, Traceable<T> right)
         {
-            if (ReferenceEquals(left, null) && ReferenceEquals(right, null)) return new Traceable<bool>("false", false);
-            if (ReferenceEquals(left, null) || ReferenceEquals(right, null)) return new Traceable<bool>("true", true);
+            if (ReferenceEquals(left, null) && ReferenceEquals(right, null)) return new Traceable<bool>(false, "false");
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null)) return new Traceable<bool>(true, "true");
             return new Traceable<bool>("!=", new ITraceableBase[] { left, right },
                 () => !EqualityComparer<T>.Default.Equals(left.Resolve(), right.Resolve()));
         }

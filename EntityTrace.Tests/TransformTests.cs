@@ -8,7 +8,7 @@ public class TransformTests
     public void Transform_DoubleToInt_ShouldRoundCorrectly()
     {
         // Arrange
-        var value = new Traceable<double>("Value", 5.7);
+        var value = new Traceable<double>(5.7, "Value");
 
         // Act
         var rounded = value.Transform<double, int>("Round", x => (int)Math.Floor(x));
@@ -29,7 +29,7 @@ public class TransformTests
     public void Transform_IntToString_ShouldConvertCorrectly()
     {
         // Arrange
-        var number = new Traceable<int>("Number", 42);
+        var number = new Traceable<int>(42, "Number");
 
         // Act
         var text = number.Transform<int, string>("ToString", x => x.ToString());
@@ -43,7 +43,7 @@ public class TransformTests
     public void Transform_Dependencies_ShouldShowFunctionNotation()
     {
         // Arrange
-        var value = new Traceable<double>("A", 3.14);
+        var value = new Traceable<double>(3.14, "A");
 
         // Act
         var transformed = value.Transform<double, int>("Floor", x => (int)Math.Floor(x));
@@ -56,7 +56,7 @@ public class TransformTests
     public void Transform_BuildGraph_ShouldShowTransformNode()
     {
         // Arrange
-        var value = new Traceable<double>("MyValue", 9.99);
+        var value = new Traceable<double>(9.99, "MyValue");
 
         // Act
         var transformed = value.Transform<double, int>("Ceiling", x => (int)Math.Ceiling(x));
@@ -78,8 +78,8 @@ public class TransformTests
     public void Transform_TwoInputs_ShouldCombineValues()
     {
         // Arrange
-        var a = new Traceable<int>("A", 3);
-        var b = new Traceable<int>("B", 5);
+        var a = new Traceable<int>(3, "A");
+        var b = new Traceable<int>(5, "B");
 
         // Act
         var sum = TraceableExtensions.Transform(a, b, "Sum", (x, y) => x + y);
@@ -93,9 +93,9 @@ public class TransformTests
     public void Transform_ThreeInputs_ShouldWork()
     {
         // Arrange
-        var a = new Traceable<int>("A", 2);
-        var b = new Traceable<int>("B", 4);
-        var c = new Traceable<int>("C", 6);
+        var a = new Traceable<int>(2, "A");
+        var b = new Traceable<int>(4, "B");
+        var c = new Traceable<int>(6, "C");
 
         // Act
         var avg = TraceableExtensions.Transform(a, b, c, "Average", (x, y, z) => (x + y + z) / 3);
@@ -109,8 +109,8 @@ public class TransformTests
     public void Transform_MultiInput_Dependencies_ShouldShowAllOperands()
     {
         // Arrange
-        var x = new Traceable<int>("X", 10);
-        var y = new Traceable<int>("Y", 20);
+        var x = new Traceable<int>(10, "X");
+        var y = new Traceable<int>(20, "Y");
 
         // Act
         var product = TraceableExtensions.Transform(x, y, "Multiply", (a, b) => a * b);
@@ -123,9 +123,9 @@ public class TransformTests
     public void Transform_MultiInput_BuildGraph_ShouldShowAllChildren()
     {
         // Arrange
-        var a = new Traceable<int>("A", 1);
-        var b = new Traceable<int>("B", 2);
-        var c = new Traceable<int>("C", 3);
+        var a = new Traceable<int>(1, "A");
+        var b = new Traceable<int>(2, "B");
+        var c = new Traceable<int>(3, "C");
 
         // Act
         var result = TraceableExtensions.Transform(a, b, c, "Combine", (x, y, z) => x + y + z);
@@ -151,7 +151,7 @@ public class TransformTests
     public void Transform_Nested_ShouldChainCorrectly()
     {
         // Arrange
-        var value = new Traceable<double>("Value", 10.7);
+        var value = new Traceable<double>(10.7, "Value");
 
         // Act
         var floor = value.Transform<double, int>("Floor", x => (int)Math.Floor(x));
@@ -166,8 +166,8 @@ public class TransformTests
     public void Transform_CombinedWithOperators_ShouldWork()
     {
         // Arrange
-        var a = new Traceable<double>("A", 10.7);
-        var b = new Traceable<double>("B", 5.3);
+        var a = new Traceable<double>(10.7, "A");
+        var b = new Traceable<double>(5.3, "B");
 
         // Act
         var sum = a + b;
@@ -186,8 +186,8 @@ public class TransformTests
     public void Transform_GetDependencyNames_ShouldReturnAllBases()
     {
         // Arrange
-        var a = new Traceable<int>("A", 1);
-        var b = new Traceable<int>("B", 2);
+        var a = new Traceable<int>(1, "A");
+        var b = new Traceable<int>(2, "B");
         var sum = a + b;
 
         // Act
@@ -204,7 +204,7 @@ public class TransformTests
     public void Transform_WithDescription_ShouldDisplayInBuildGraph()
     {
         // Arrange
-        var value = new Traceable<int>("Value", 100);
+        var value = new Traceable<int>(100, "Value");
 
         // Act
         var transformed = value.Transform<int, string>("Format", x => $"${x}");
@@ -223,7 +223,7 @@ public class TransformTests
     public void Transform_DoubleToInt_ShouldChangeType()
     {
         // Arrange
-        var value = new Traceable<double>("Value", 7.5);
+        var value = new Traceable<double>(7.5, "Value");
 
         // Act
         var intValue = value.Transform<double, int>("ToInt", x => (int)x);
@@ -237,7 +237,7 @@ public class TransformTests
     public void Transform_NumericToString_ShouldWork()
     {
         // Arrange
-        var number = new Traceable<decimal>("Price", 19.99m);
+        var number = new Traceable<decimal>(19.99m, "Price");
 
         // Act
         var formatted = number.Transform<decimal, string>("FormatPrice", x => $"${x:F2}");
@@ -250,7 +250,7 @@ public class TransformTests
     public void Transform_NumericToBool_ShouldWork()
     {
         // Arrange
-        var temperature = new Traceable<int>("Temperature", 75);
+        var temperature = new Traceable<int>(75, "Temperature");
 
         // Act
         var isHot = temperature.Transform<int, bool>("IsHot", x => x > 80);
@@ -264,8 +264,8 @@ public class TransformTests
     public void Transform_DifferentInputTypesForMultiInput_ShouldWork()
     {
         // Arrange
-        var number = new Traceable<int>("Number", 42);
-        var text = new Traceable<string>("Text", "Answer");
+        var number = new Traceable<int>(42, "Number");
+        var text = new Traceable<string>("Answer", "Text");
 
         // Act
         var combined = TraceableExtensions.Transform(text, number, "Combine", (t, n) => $"{t}: {n}");
@@ -294,7 +294,7 @@ public class TransformTests
     public void Transform_NullLabel_ShouldThrowArgumentException()
     {
         // Arrange
-        var value = new Traceable<int>("Value", 5);
+        var value = new Traceable<int>(5, "Value");
 
         // Act & Assert
         Assert.Throws<ArgumentException>(() =>
@@ -305,7 +305,7 @@ public class TransformTests
     public void Transform_EmptyLabel_ShouldThrowArgumentException()
     {
         // Arrange
-        var value = new Traceable<int>("Value", 5);
+        var value = new Traceable<int>(5, "Value");
 
         // Act & Assert
         Assert.Throws<ArgumentException>(() =>
@@ -316,7 +316,7 @@ public class TransformTests
     public void Transform_WhitespaceLabel_ShouldThrowArgumentException()
     {
         // Arrange
-        var value = new Traceable<int>("Value", 5);
+        var value = new Traceable<int>(5, "Value");
 
         // Act & Assert
         Assert.Throws<ArgumentException>(() =>
@@ -327,7 +327,7 @@ public class TransformTests
     public void Transform_NullTransformer_ShouldThrowArgumentNullException()
     {
         // Arrange
-        var value = new Traceable<int>("Value", 5);
+        var value = new Traceable<int>(5, "Value");
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
@@ -338,7 +338,7 @@ public class TransformTests
     public void Transform_ExceptionInTransformer_ShouldBubbleUp()
     {
         // Arrange
-        var value = new Traceable<int>("Value", 0);
+        var value = new Traceable<int>(0, "Value");
         var divided = value.Transform<int, int>("Reciprocal", x => 10 / x);
 
         // Act & Assert
@@ -349,7 +349,7 @@ public class TransformTests
     public void Transform_TwoInputs_NullFirstOperand_ShouldThrowArgumentNullException()
     {
         // Arrange
-        var b = new Traceable<int>("B", 5);
+        var b = new Traceable<int>(5, "B");
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
@@ -360,8 +360,8 @@ public class TransformTests
     public void Transform_ThreeInputs_NullThirdOperand_ShouldThrowArgumentNullException()
     {
         // Arrange
-        var a = new Traceable<int>("A", 1);
-        var b = new Traceable<int>("B", 2);
+        var a = new Traceable<int>(1, "A");
+        var b = new Traceable<int>(2, "B");
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
@@ -376,7 +376,7 @@ public class TransformTests
     public void Transform_AfterReset_ShouldRecomputeValue()
     {
         // Arrange
-        var value = new Traceable<int>("Value", 10);
+        var value = new Traceable<int>(10, "Value");
         var doubled = value.Transform<int, int>("Double", x => x * 2);
 
         // Assert initial value
@@ -393,11 +393,11 @@ public class TransformTests
     public void Transform_InComplexChain_ResetShouldPropagate()
     {
         // Arrange
-        var a = new Traceable<int>("A", 5);
-        var b = new Traceable<int>("B", 3);
+        var a = new Traceable<int>(5, "A");
+        var b = new Traceable<int>(3, "B");
         var sum = a + b;
         var doubled = sum.Transform<int, int>("Double", x => x * 2);
-        var final = doubled + new Traceable<int>("C", 10);
+        var final = doubled + new Traceable<int>(10, "C");
 
         // Assert initial value
         Assert.Equal(26, final.Resolve()); // (5 + 3) * 2 + 10 = 26
@@ -413,8 +413,8 @@ public class TransformTests
     public void Transform_MultiInput_AfterReset_ShouldRecompute()
     {
         // Arrange
-        var a = new Traceable<int>("A", 2);
-        var b = new Traceable<int>("B", 3);
+        var a = new Traceable<int>(2, "A");
+        var b = new Traceable<int>(3, "B");
         var product = TraceableExtensions.Transform(a, b, "Product", (x, y) => x * y);
 
         // Assert initial value
@@ -435,8 +435,8 @@ public class TransformTests
     public void Transform_ComplexNestedBuildGraph_ShouldDisplayCorrectly()
     {
         // Arrange
-        var a = new Traceable<double>("A", 10.7);
-        var b = new Traceable<double>("B", 5.3);
+        var a = new Traceable<double>(10.7, "A");
+        var b = new Traceable<double>(5.3, "B");
         var sum = a + b;
         var rounded = sum.Transform<double, int>("Floor", x => (int)Math.Floor(x));
 
@@ -465,9 +465,9 @@ public class TransformTests
     public void Transform_OperatorPrecedence_ShouldWork()
     {
         // Arrange
-        var a = new Traceable<int>("A", 2);
-        var b = new Traceable<int>("B", 3);
-        var c = new Traceable<int>("C", 4);
+        var a = new Traceable<int>(2, "A");
+        var b = new Traceable<int>(3, "B");
+        var c = new Traceable<int>(4, "C");
         var product = b * c;
         var sum = a + product;
 
@@ -483,7 +483,7 @@ public class TransformTests
     public void Transform_Name_ShouldMatchDependencies()
     {
         // Arrange
-        var value = new Traceable<int>("Value", 42);
+        var value = new Traceable<int>(42, "Value");
 
         // Act
         var transformed = value.Transform<int, string>("Stringify", x => x.ToString());
@@ -497,7 +497,7 @@ public class TransformTests
     public void Transform_ValueAsObject_ShouldWork()
     {
         // Arrange
-        var value = new Traceable<int>("Value", 42);
+        var value = new Traceable<int>(42, "Value");
 
         // Act
         var transformed = value.Transform<int, string>("Format", x => $"Number: {x}");

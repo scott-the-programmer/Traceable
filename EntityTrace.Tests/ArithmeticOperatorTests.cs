@@ -7,8 +7,8 @@ public class ArithmeticOperatorTests
     [Fact]
     public void Addition_Int_ShouldCreateCompositeWithCorrectValue()
     {
-        var a = new Traceable<int>("A", 5);
-        var b = new Traceable<int>("B", 3);
+        var a = new Traceable<int>(5, "A");
+        var b = new Traceable<int>(3, "B");
 
         var sum = a + b;
 
@@ -19,8 +19,8 @@ public class ArithmeticOperatorTests
     [Fact]
     public void Subtraction_Int_ShouldWork()
     {
-        var a = new Traceable<int>("A", 10);
-        var b = new Traceable<int>("B", 3);
+        var a = new Traceable<int>(10, "A");
+        var b = new Traceable<int>(3, "B");
 
         var diff = a - b;
 
@@ -31,8 +31,8 @@ public class ArithmeticOperatorTests
     [Fact]
     public void Multiplication_Int_ShouldWork()
     {
-        var a = new Traceable<int>("A", 5);
-        var b = new Traceable<int>("B", 3);
+        var a = new Traceable<int>(5, "A");
+        var b = new Traceable<int>(3, "B");
 
         var product = a * b;
 
@@ -43,8 +43,8 @@ public class ArithmeticOperatorTests
     [Fact]
     public void Division_Int_ShouldWork()
     {
-        var a = new Traceable<int>("A", 15);
-        var b = new Traceable<int>("B", 3);
+        var a = new Traceable<int>(15, "A");
+        var b = new Traceable<int>(3, "B");
 
         var quotient = a / b;
 
@@ -59,8 +59,8 @@ public class ArithmeticOperatorTests
     [Fact]
     public void Addition_Decimal_ShouldWork()
     {
-        var a = new Traceable<decimal>("A", 5.5m);
-        var b = new Traceable<decimal>("B", 3.2m);
+        var a = new Traceable<decimal>(5.5m, "A");
+        var b = new Traceable<decimal>(3.2m, "B");
 
         var sum = a + b;
 
@@ -70,8 +70,8 @@ public class ArithmeticOperatorTests
     [Fact]
     public void Multiplication_Decimal_ShouldWork()
     {
-        var a = new Traceable<decimal>("A", 5.5m);
-        var b = new Traceable<decimal>("B", 2.0m);
+        var a = new Traceable<decimal>(5.5m, "A");
+        var b = new Traceable<decimal>(2.0m, "B");
 
         var product = a * b;
 
@@ -85,8 +85,8 @@ public class ArithmeticOperatorTests
     [Fact]
     public void Addition_Double_ShouldWork()
     {
-        var a = new Traceable<double>("A", 5.5);
-        var b = new Traceable<double>("B", 3.2);
+        var a = new Traceable<double>(5.5, "A");
+        var b = new Traceable<double>(3.2, "B");
 
         var sum = a + b;
 
@@ -100,8 +100,8 @@ public class ArithmeticOperatorTests
     [Fact]
     public void Addition_String_ShouldConcatenate()
     {
-        var first = new Traceable<string>("First", "Hello");
-        var last = new Traceable<string>("Last", "World");
+        var first = new Traceable<string>("Hello", "First");
+        var last = new Traceable<string>("World", "Last");
 
         var full = first + last;
 
@@ -112,8 +112,8 @@ public class ArithmeticOperatorTests
     [Fact]
     public void Subtraction_OnString_ShouldThrow()
     {
-        var a = new Traceable<string>("A", "Hello");
-        var b = new Traceable<string>("B", "World");
+        var a = new Traceable<string>("Hello", "A");
+        var b = new Traceable<string>("World", "B");
 
         var ex = Assert.Throws<InvalidOperationException>(() => { var result = a - b; });
         Assert.Contains("Operator - not supported for type String", ex.Message);
@@ -126,9 +126,9 @@ public class ArithmeticOperatorTests
     [Fact]
     public void ComplexExpression_ShouldMaintainPrecedence()
     {
-        var a = new Traceable<int>("A", 2);
-        var b = new Traceable<int>("B", 3);
-        var c = new Traceable<int>("C", 4);
+        var a = new Traceable<int>(2, "A");
+        var b = new Traceable<int>(3, "B");
+        var c = new Traceable<int>(4, "C");
 
         var result = a + b * c;
 
@@ -139,9 +139,9 @@ public class ArithmeticOperatorTests
     [Fact]
     public void ComplexExpressionWithParentheses_ShouldWork()
     {
-        var a = new Traceable<int>("A", 2);
-        var b = new Traceable<int>("B", 3);
-        var c = new Traceable<int>("C", 4);
+        var a = new Traceable<int>(2, "A");
+        var b = new Traceable<int>(3, "B");
+        var c = new Traceable<int>(4, "C");
 
         var result = (a + b) * c;
 
@@ -152,9 +152,9 @@ public class ArithmeticOperatorTests
     [Fact]
     public void GetDependencyNames_ForComplexExpression_ShouldReturnAllBaseEntities()
     {
-        var a = new Traceable<int>("A", 1);
-        var b = new Traceable<int>("B", 2);
-        var c = new Traceable<int>("C", 3);
+        var a = new Traceable<int>(1, "A");
+        var b = new Traceable<int>(2, "B");
+        var c = new Traceable<int>(3, "C");
 
         var result = (a + b) * c;
 
@@ -168,8 +168,8 @@ public class ArithmeticOperatorTests
     [Fact]
     public void Reset_ShouldPropagateToComposites()
     {
-        var a = new Traceable<int>("A", 10);
-        var b = new Traceable<int>("B", 5);
+        var a = new Traceable<int>(10, "A");
+        var b = new Traceable<int>(5, "B");
         var sum = a + b;
 
         Assert.Equal(15, sum.Resolve());
@@ -182,8 +182,8 @@ public class ArithmeticOperatorTests
     [Fact]
     public void Reset_OnComposite_ShouldThrow()
     {
-        var a = new Traceable<int>("A", 1);
-        var b = new Traceable<int>("B", 2);
+        var a = new Traceable<int>(1, "A");
+        var b = new Traceable<int>(2, "B");
         var sum = a + b;
 
         var ex = Assert.Throws<InvalidOperationException>(() => sum.Reset(10));

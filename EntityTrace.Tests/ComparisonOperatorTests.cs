@@ -5,8 +5,8 @@ public class ComparisonOperatorTests
     [Fact]
     public void GreaterThan_Int_ShouldReturnTraceableBool()
     {
-        var a = new Traceable<int>("A", 10);
-        var b = new Traceable<int>("B", 5);
+        var a = new Traceable<int>(10, "A");
+        var b = new Traceable<int>(5, "B");
 
         var result = a > b;
 
@@ -18,8 +18,8 @@ public class ComparisonOperatorTests
     [Fact]
     public void LessThan_Int_ShouldWork()
     {
-        var a = new Traceable<int>("A", 5);
-        var b = new Traceable<int>("B", 10);
+        var a = new Traceable<int>(5, "A");
+        var b = new Traceable<int>(10, "B");
 
         var result = a < b;
 
@@ -29,8 +29,8 @@ public class ComparisonOperatorTests
     [Fact]
     public void GreaterThanOrEqual_Int_ShouldWork()
     {
-        var a = new Traceable<int>("A", 10);
-        var b = new Traceable<int>("B", 10);
+        var a = new Traceable<int>(10, "A");
+        var b = new Traceable<int>(10, "B");
 
         var result = a >= b;
 
@@ -40,8 +40,8 @@ public class ComparisonOperatorTests
     [Fact]
     public void LessThanOrEqual_Int_ShouldWork()
     {
-        var a = new Traceable<int>("A", 5);
-        var b = new Traceable<int>("B", 10);
+        var a = new Traceable<int>(5, "A");
+        var b = new Traceable<int>(10, "B");
 
         var result = a <= b;
 
@@ -51,8 +51,8 @@ public class ComparisonOperatorTests
     [Fact]
     public void Equality_Int_ShouldWork()
     {
-        var a = new Traceable<int>("A", 10);
-        var b = new Traceable<int>("B", 10);
+        var a = new Traceable<int>(10, "A");
+        var b = new Traceable<int>(10, "B");
 
         var result = a == b;
 
@@ -62,8 +62,8 @@ public class ComparisonOperatorTests
     [Fact]
     public void Inequality_Int_ShouldWork()
     {
-        var a = new Traceable<int>("A", 10);
-        var b = new Traceable<int>("B", 5);
+        var a = new Traceable<int>(10, "A");
+        var b = new Traceable<int>(5, "B");
 
         var result = a != b;
 
