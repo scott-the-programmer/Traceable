@@ -14,15 +14,19 @@ public class TransformTests
         var rounded = value.Transform<double, int>(x => (int)Math.Floor(x), "Round");
 
         // Assert
-        Assert.Equal(5, rounded.Resolve());
-        Assert.Equal("Round(Value)", rounded.Dependencies);
+        Assert.Multiple(
+            () => Assert.Equal(5, rounded.Resolve()),
+            () => Assert.Equal("Round(Value)", rounded.Dependencies)
+        );
 
         var graph = rounded.BuildGraph();
-        Assert.Equal("Round", graph.Operation);
-        Assert.Equal(5, graph.Value);
-        Assert.Single(graph.Children);
-        Assert.Equal("Value", graph.Children[0].Name);
-        Assert.Equal(5.7, graph.Children[0].Value);
+        Assert.Multiple(
+            () => Assert.Equal("Round", graph.Operation),
+            () => Assert.Equal(5, graph.Value),
+            () => Assert.Single(graph.Children),
+            () => Assert.Equal("Value", graph.Children[0].Name),
+            () => Assert.Equal(5.7, graph.Children[0].Value)
+        );
     }
 
     [Fact]
@@ -63,11 +67,13 @@ public class TransformTests
 
         // Assert
         var graph = transformed.BuildGraph();
-        Assert.Equal("Ceiling", graph.Operation);
-        Assert.Equal(10, graph.Value);
-        Assert.Single(graph.Children);
-        Assert.Equal("MyValue", graph.Children[0].Name);
-        Assert.Equal(9.99, graph.Children[0].Value);
+        Assert.Multiple(
+            () => Assert.Equal("Ceiling", graph.Operation),
+            () => Assert.Equal(10, graph.Value),
+            () => Assert.Single(graph.Children),
+            () => Assert.Equal("MyValue", graph.Children[0].Name),
+            () => Assert.Equal(9.99, graph.Children[0].Value)
+        );
     }
 
     #endregion
@@ -132,15 +138,17 @@ public class TransformTests
 
         // Assert
         var graph = result.BuildGraph();
-        Assert.Equal("Combine", graph.Operation);
-        Assert.Equal(6, graph.Value);
-        Assert.Equal(3, graph.Children.Count);
-        Assert.Equal("A", graph.Children[0].Name);
-        Assert.Equal(1, graph.Children[0].Value);
-        Assert.Equal("B", graph.Children[1].Name);
-        Assert.Equal(2, graph.Children[1].Value);
-        Assert.Equal("C", graph.Children[2].Name);
-        Assert.Equal(3, graph.Children[2].Value);
+        Assert.Multiple(
+            () => Assert.Equal("Combine", graph.Operation),
+            () => Assert.Equal(6, graph.Value),
+            () => Assert.Equal(3, graph.Children.Count),
+            () => Assert.Equal("A", graph.Children[0].Name),
+            () => Assert.Equal(1, graph.Children[0].Value),
+            () => Assert.Equal("B", graph.Children[1].Name),
+            () => Assert.Equal(2, graph.Children[1].Value),
+            () => Assert.Equal("C", graph.Children[2].Name),
+            () => Assert.Equal(3, graph.Children[2].Value)
+        );
     }
 
     #endregion
@@ -195,9 +203,11 @@ public class TransformTests
         var dependencyNames = transformed.GetDependencyNames().ToList();
 
         // Assert
-        Assert.Equal(2, dependencyNames.Count);
-        Assert.Contains("A", dependencyNames);
-        Assert.Contains("B", dependencyNames);
+        Assert.Multiple(
+            () => Assert.Equal(2, dependencyNames.Count),
+            () => Assert.Contains("A", dependencyNames),
+            () => Assert.Contains("B", dependencyNames)
+        );
     }
 
     [Fact]
@@ -375,43 +385,49 @@ public class TransformTests
     [Fact]
     public void Transform_AfterReload_ShouldRecomputeValue()
     {
+        // Arrange
         var value = new Traceable<int>(10, "Value");
         var doubled = value.Transform<int, int>(x => x * 2, "Double");
-
         Assert.Equal(20, doubled.Resolve());
 
+        // Act
         value.Reload(15);
 
+        // Assert
         Assert.Equal(30, doubled.Resolve());
     }
 
     [Fact]
     public void Transform_InComplexChain_ReloadShouldPropagate()
     {
+        // Arrange
         var a = new Traceable<int>(5, "A");
         var b = new Traceable<int>(3, "B");
         var sum = a + b;
         var doubled = sum.Transform<int, int>(x => x * 2, "Double");
         var final = doubled + new Traceable<int>(10, "C");
-
         Assert.Equal(26, final.Resolve()); // (5 + 3) * 2 + 10 = 26
 
+        // Act
         a.Reload(10);
 
+        // Assert
         Assert.Equal(36, final.Resolve()); // (10 + 3) * 2 + 10 = 36
     }
 
     [Fact]
     public void Transform_MultiInput_AfterReload_ShouldRecompute()
     {
+        // Arrange
         var a = new Traceable<int>(2, "A");
         var b = new Traceable<int>(3, "B");
         var product = TraceableExtensions.Transform(a, b, (x, y) => x * y, "Product");
-
         Assert.Equal(6, product.Resolve());
 
+        // Act
         a.Reload(5);
 
+        // Assert
         Assert.Equal(15, product.Resolve());
     }
 
@@ -508,10 +524,12 @@ public class TransformTests
         var (low, high) = value.Split(x => (x * 0.9m, x * 1.1m), "Low", "High");
 
         // Assert
-        Assert.Equal(90m, low.Resolve());
-        Assert.Equal(110m, high.Resolve());
-        Assert.Equal("Low(Price)", low.Dependencies);
-        Assert.Equal("High(Price)", high.Dependencies);
+        Assert.Multiple(
+            () => Assert.Equal(90m, low.Resolve()),
+            () => Assert.Equal(110m, high.Resolve()),
+            () => Assert.Equal("Low(Price)", low.Dependencies),
+            () => Assert.Equal("High(Price)", high.Dependencies)
+        );
     }
 
     [Fact]
@@ -524,12 +542,14 @@ public class TransformTests
         var (min, mid, max) = value.Split(x => (x - 10, x, x + 10), "Min", "Mid", "Max");
 
         // Assert
-        Assert.Equal(90, min.Resolve());
-        Assert.Equal(100, mid.Resolve());
-        Assert.Equal(110, max.Resolve());
-        Assert.Equal("Min(Value)", min.Dependencies);
-        Assert.Equal("Mid(Value)", mid.Dependencies);
-        Assert.Equal("Max(Value)", max.Dependencies);
+        Assert.Multiple(
+            () => Assert.Equal(90, min.Resolve()),
+            () => Assert.Equal(100, mid.Resolve()),
+            () => Assert.Equal(110, max.Resolve()),
+            () => Assert.Equal("Min(Value)", min.Dependencies),
+            () => Assert.Equal("Mid(Value)", mid.Dependencies),
+            () => Assert.Equal("Max(Value)", max.Dependencies)
+        );
     }
 
     [Fact]
@@ -558,10 +578,12 @@ public class TransformTests
         var (doubled, halved) = sum.Split(x => (x * 2, x / 2), "Doubled", "Halved");
 
         // Assert
-        Assert.Equal(30, doubled.Resolve());
-        Assert.Equal(7, halved.Resolve());
-        Assert.Equal("Doubled(A + B)", doubled.Dependencies);
-        Assert.Equal("Halved(A + B)", halved.Dependencies);
+        Assert.Multiple(
+            () => Assert.Equal(30, doubled.Resolve()),
+            () => Assert.Equal(7, halved.Resolve()),
+            () => Assert.Equal("Doubled(A + B)", doubled.Dependencies),
+            () => Assert.Equal("Halved(A + B)", halved.Dependencies)
+        );
     }
 
     [Fact]
@@ -594,13 +616,14 @@ public class TransformTests
         var highGraph = high.BuildGraph();
 
         // Assert
-        Assert.Equal("Low", lowGraph.Operation);
-        Assert.Single(lowGraph.Children);
-        Assert.Equal("Value", lowGraph.Children[0].Name);
-
-        Assert.Equal("High", highGraph.Operation);
-        Assert.Single(highGraph.Children);
-        Assert.Equal("Value", highGraph.Children[0].Name);
+        Assert.Multiple(
+            () => Assert.Equal("Low", lowGraph.Operation),
+            () => Assert.Single(lowGraph.Children),
+            () => Assert.Equal("Value", lowGraph.Children[0].Name),
+            () => Assert.Equal("High", highGraph.Operation),
+            () => Assert.Single(highGraph.Children),
+            () => Assert.Equal("Value", highGraph.Children[0].Name)
+        );
     }
 
     [Fact]

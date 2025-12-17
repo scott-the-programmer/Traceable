@@ -5,42 +5,53 @@ public class TraceableStateTests
     [Fact]
     public void BaseEntity_WithArbitraryState_StoresAndRetrievesCorrectly()
     {
+        // Arrange
         var arbitraryState = new Dictionary<string, object>
         {
             ["source"] = "database",
             ["confidence"] = 0.95
         };
-
         var entity = new Traceable<int>(42, "Test", arbitraryState: arbitraryState);
 
-        Assert.True(entity.HasArbitraryState);
-        Assert.Equal(2, entity.ArbitraryState.Count);
-        Assert.Equal("database", entity.ArbitraryState["source"]);
-        Assert.Equal(0.95, entity.ArbitraryState["confidence"]);
+        // Act
+
+        // Assert
+        Assert.Multiple(
+            () => Assert.True(entity.HasArbitraryState),
+            () => Assert.Equal(2, entity.ArbitraryState.Count),
+            () => Assert.Equal("database", entity.ArbitraryState["source"]),
+            () => Assert.Equal(0.95, entity.ArbitraryState["confidence"])
+        );
     }
 
     [Fact]
     public void BaseEntity_WithValueState_StoresAndRetrievesCorrectly()
     {
+        // Arrange
         var valueState = new Dictionary<string, decimal>
         {
             ["target"] = 100m,
             ["min"] = 50m,
             ["max"] = 200m
         };
-
         var entity = new Traceable<decimal>(75m, "Test", valueState: valueState);
 
-        Assert.True(entity.HasValueState);
-        Assert.Equal(3, entity.ValueState.Count);
-        Assert.Equal(100m, entity.ValueState["target"]);
-        Assert.Equal(50m, entity.ValueState["min"]);
-        Assert.Equal(200m, entity.ValueState["max"]);
+        // Act
+
+        // Assert
+        Assert.Multiple(
+            () => Assert.True(entity.HasValueState),
+            () => Assert.Equal(3, entity.ValueState.Count),
+            () => Assert.Equal(100m, entity.ValueState["target"]),
+            () => Assert.Equal(50m, entity.ValueState["min"]),
+            () => Assert.Equal(200m, entity.ValueState["max"])
+        );
     }
 
     [Fact]
     public void BaseEntity_WithBothStates_StoresAndRetrievesCorrectly()
     {
+        // Arrange
         var arbitraryState = new Dictionary<string, object>
         {
             ["currency"] = "USD",
@@ -50,55 +61,71 @@ public class TraceableStateTests
         {
             ["threshold"] = 100m
         };
-
         var entity = new Traceable<decimal>(150m, "Revenue", arbitraryState, valueState);
 
-        Assert.True(entity.HasArbitraryState);
-        Assert.True(entity.HasValueState);
-        Assert.Equal("USD", entity.ArbitraryState["currency"]);
-        Assert.Equal(2, entity.ArbitraryState["precision"]);
-        Assert.Equal(100m, entity.ValueState["threshold"]);
+        // Act
+
+        // Assert
+        Assert.Multiple(
+            () => Assert.True(entity.HasArbitraryState),
+            () => Assert.True(entity.HasValueState),
+            () => Assert.Equal("USD", entity.ArbitraryState["currency"]),
+            () => Assert.Equal(2, entity.ArbitraryState["precision"]),
+            () => Assert.Equal(100m, entity.ValueState["threshold"])
+        );
     }
 
     [Fact]
     public void BaseEntity_WithoutState_ReturnsEmptyDictionaries()
     {
+        // Arrange
         var entity = new Traceable<int>(42, "Test");
 
-        Assert.False(entity.HasArbitraryState);
-        Assert.False(entity.HasValueState);
-        Assert.Empty(entity.ArbitraryState);
-        Assert.Empty(entity.ValueState);
+        // Act
+
+        // Assert
+        Assert.Multiple(
+            () => Assert.False(entity.HasArbitraryState),
+            () => Assert.False(entity.HasValueState),
+            () => Assert.Empty(entity.ArbitraryState),
+            () => Assert.Empty(entity.ValueState)
+        );
     }
 
     [Fact]
     public void CompositeEntity_WithState_HasIndependentState()
     {
+        // Arrange
         var arbitraryState1 = new Dictionary<string, object> { ["tag"] = "A" };
         var arbitraryState2 = new Dictionary<string, object> { ["tag"] = "B" };
-
         var entity1 = new Traceable<int>(10, "A", arbitraryState: arbitraryState1);
         var entity2 = new Traceable<int>(20, "B", arbitraryState: arbitraryState2);
-
         var composite = entity1 + entity2;
 
-        Assert.False(composite.HasArbitraryState);
-        Assert.False(composite.HasValueState);
+        // Act
 
-        Assert.True(entity1.HasArbitraryState);
-        Assert.True(entity2.HasArbitraryState);
-        Assert.Equal("A", entity1.ArbitraryState["tag"]);
-        Assert.Equal("B", entity2.ArbitraryState["tag"]);
+        // Assert
+        Assert.Multiple(
+            () => Assert.False(composite.HasArbitraryState),
+            () => Assert.False(composite.HasValueState),
+            () => Assert.True(entity1.HasArbitraryState),
+            () => Assert.True(entity2.HasArbitraryState),
+            () => Assert.Equal("A", entity1.ArbitraryState["tag"]),
+            () => Assert.Equal("B", entity2.ArbitraryState["tag"])
+        );
     }
 
     [Fact]
     public void ArbitraryState_IsReadOnly_ExposesIReadOnlyDictionary()
     {
+        // Arrange
         var arbitraryState = new Dictionary<string, object> { ["key"] = "value" };
         var entity = new Traceable<int>(42, "Test", arbitraryState: arbitraryState);
 
-        Assert.IsAssignableFrom<IReadOnlyDictionary<string, object>>(entity.ArbitraryState);
+        // Act
 
+        // Assert
+        Assert.IsAssignableFrom<IReadOnlyDictionary<string, object>>(entity.ArbitraryState);
         var property = typeof(Traceable<int>).GetProperty(nameof(entity.ArbitraryState));
         Assert.Equal(typeof(IReadOnlyDictionary<string, object>), property!.PropertyType);
     }
@@ -106,11 +133,14 @@ public class TraceableStateTests
     [Fact]
     public void ValueState_IsReadOnly_ExposesIReadOnlyDictionary()
     {
+        // Arrange
         var valueState = new Dictionary<string, int> { ["key"] = 100 };
         var entity = new Traceable<int>(42, "Test", valueState: valueState);
 
-        Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(entity.ValueState);
+        // Act
 
+        // Assert
+        Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(entity.ValueState);
         var property = typeof(Traceable<int>).GetProperty(nameof(entity.ValueState));
         Assert.Equal(typeof(IReadOnlyDictionary<string, int>), property!.PropertyType);
     }
@@ -118,6 +148,7 @@ public class TraceableStateTests
     [Fact]
     public void BuildGraph_IncludesArbitraryState_InVisualization()
     {
+        // Arrange
         var arbitraryState = new Dictionary<string, object>
         {
             ["currency"] = "USD",
@@ -125,16 +156,21 @@ public class TraceableStateTests
         };
         var entity = new Traceable<decimal>(10000m, "Revenue", arbitraryState: arbitraryState);
 
+        // Act
         var graph = entity.BuildGraph();
 
-        Assert.NotNull(graph.ArbitraryState);
-        Assert.Equal("USD", graph.ArbitraryState["currency"]);
-        Assert.Equal(2, graph.ArbitraryState["precision"]);
+        // Assert
+        Assert.Multiple(
+            () => Assert.NotNull(graph.ArbitraryState),
+            () => Assert.Equal("USD", graph.ArbitraryState["currency"]),
+            () => Assert.Equal(2, graph.ArbitraryState["precision"])
+        );
     }
 
     [Fact]
     public void BuildGraph_IncludesValueState_InVisualization()
     {
+        // Arrange
         var valueState = new Dictionary<string, decimal>
         {
             ["threshold"] = 100m,
@@ -142,21 +178,28 @@ public class TraceableStateTests
         };
         var entity = new Traceable<decimal>(150m, "Sales", valueState: valueState);
 
+        // Act
         var graph = entity.BuildGraph();
 
-        Assert.NotNull(graph.ValueState);
-        Assert.Equal(100m, graph.ValueState["threshold"]);
-        Assert.Equal(200m, graph.ValueState["target"]);
+        // Assert
+        Assert.Multiple(
+            () => Assert.NotNull(graph.ValueState),
+            () => Assert.Equal(100m, graph.ValueState["threshold"]),
+            () => Assert.Equal(200m, graph.ValueState["target"])
+        );
     }
 
     [Fact]
     public void TryGetArbitraryState_WithExistingKey_ReturnsTrue()
     {
+        // Arrange
         var arbitraryState = new Dictionary<string, object> { ["key1"] = "value1" };
         var entity = new Traceable<int>(42, "Test", arbitraryState: arbitraryState);
 
+        // Act
         var success = entity.TryGetArbitraryState("key1", out var value);
 
+        // Assert
         Assert.True(success);
         Assert.Equal("value1", value);
     }
@@ -164,11 +207,14 @@ public class TraceableStateTests
     [Fact]
     public void TryGetArbitraryState_WithMissingKey_ReturnsFalse()
     {
+        // Arrange
         var arbitraryState = new Dictionary<string, object> { ["key1"] = "value1" };
         var entity = new Traceable<int>(42, "Test", arbitraryState: arbitraryState);
 
+        // Act
         var success = entity.TryGetArbitraryState("missing", out var value);
 
+        // Assert
         Assert.False(success);
         Assert.Null(value);
     }
@@ -176,11 +222,14 @@ public class TraceableStateTests
     [Fact]
     public void TryGetValueState_WithExistingKey_ReturnsTrue()
     {
+        // Arrange
         var valueState = new Dictionary<string, int> { ["threshold"] = 100 };
         var entity = new Traceable<int>(42, "Test", valueState: valueState);
 
+        // Act
         var success = entity.TryGetValueState("threshold", out var value);
 
+        // Assert
         Assert.True(success);
         Assert.Equal(100, value);
     }
@@ -188,11 +237,14 @@ public class TraceableStateTests
     [Fact]
     public void TryGetValueState_WithMissingKey_ReturnsFalse()
     {
+        // Arrange
         var valueState = new Dictionary<string, int> { ["threshold"] = 100 };
         var entity = new Traceable<int>(42, "Test", valueState: valueState);
 
+        // Act
         var success = entity.TryGetValueState("missing", out var value);
 
+        // Assert
         Assert.False(success);
         Assert.Equal(default(int), value);
     }
@@ -200,42 +252,55 @@ public class TraceableStateTests
     [Fact]
     public void HasArbitraryState_WithState_ReturnsTrue()
     {
+        // Arrange
         var arbitraryState = new Dictionary<string, object> { ["key"] = "value" };
         var entity = new Traceable<int>(42, "Test", arbitraryState: arbitraryState);
 
+        // Act
+
+        // Assert
         Assert.True(entity.HasArbitraryState);
     }
 
     [Fact]
     public void HasValueState_WithState_ReturnsTrue()
     {
+        // Arrange
         var valueState = new Dictionary<string, int> { ["key"] = 100 };
         var entity = new Traceable<int>(42, "Test", valueState: valueState);
 
+        // Act
+
+        // Assert
         Assert.True(entity.HasValueState);
     }
 
     [Fact]
     public void BuildGraph_WithBothStates_ShowsInCorrectFormat()
     {
+        // Arrange
         var base1 = new Traceable<decimal>(100m, "Base", arbitraryState: new Dictionary<string, object> { ["source"] = "db" });
         var base2 = new Traceable<decimal>(50m, "Tax", valueState: new Dictionary<string, decimal> { ["rate"] = 0.5m });
-
         var total = base1 + base2;
         total.Description = "Total";
 
+        // Act
         var graph = total.BuildGraph();
 
-        Assert.Equal("Total", graph.Description);
-        Assert.Equal(150m, graph.Value);
-        Assert.Equal(2, graph.Children.Count);
+        // Assert
+        Assert.Multiple(
+            () => Assert.Equal("Total", graph.Description),
+            () => Assert.Equal(150m, graph.Value),
+            () => Assert.Equal(2, graph.Children.Count)
+        );
 
         var child1 = graph.Children[0];
-        Assert.NotNull(child1.ArbitraryState);
-        Assert.Equal("db", child1.ArbitraryState["source"]);
-
         var child2 = graph.Children[1];
-        Assert.NotNull(child2.ValueState);
-        Assert.Equal(0.5m, child2.ValueState["rate"]);
+        Assert.Multiple(
+            () => Assert.NotNull(child1.ArbitraryState),
+            () => Assert.Equal("db", child1.ArbitraryState["source"]),
+            () => Assert.NotNull(child2.ValueState),
+            () => Assert.Equal(0.5m, child2.ValueState["rate"])
+        );
     }
 }
